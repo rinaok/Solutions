@@ -5,6 +5,7 @@ import { doc, updateDoc, collection, setDoc, arrayUnion } from 'firebase/firesto
 import { motion } from 'motion/react';
 import { Trophy, Gift, Star, Award, Heart, Zap, Sparkles } from 'lucide-react';
 import { handleFirestoreError, OperationType } from '../errorHandlers';
+import { CHARACTERS } from '../constants';
 
 const PRIZES = [
   { id: 'p1', name: 'Most Audacious', icon: <Zap className="text-yellow-500" /> },
@@ -56,7 +57,7 @@ export function AwardRoom() {
   const everyoneAwarded = players.every(p => p.status === 'awarded');
 
   return (
-    <div className="min-h-screen flex flex-col p-8 bg-[#FDFCF0]">
+    <div className="min-h-screen flex flex-col p-8 bg-[#DFDFDF]">
       <div className="mb-12">
         <h1 className="text-6xl font-black uppercase tracking-tighter mb-2">Peer Review</h1>
         <p className="text-xl font-bold uppercase opacity-60">Give a gold seal to your favorite entry.</p>
@@ -71,12 +72,17 @@ export function AwardRoom() {
                 <div 
                   key={s.id}
                   onClick={() => setSelectedSolution(s.id)}
-                  className={`cursor-pointer p-6 rounded-[32px] transition-all relative overflow-hidden ${
+                  className={`cursor-pointer p-6 rounded-[32px] transition-all relative overflow-hidden flex items-center gap-4 ${
                     selectedSolution === s.id ? 'bg-[#E9535E] text-white shadow-xl translate-y-[-4px]' : 'bg-white hover:bg-[#E4E3E0] shadow-sm'
                   }`}
                 >
-                  <div className="text-2xl font-black uppercase">{s.name}</div>
-                  <div className={`text-sm font-bold uppercase opacity-60 ${selectedSolution === s.id ? 'text-white' : 'text-black'}`}>By {players.find(p => p.id === s.playerId)?.name}</div>
+                  <div className="w-12 h-12 rounded-2xl bg-[#DFDFDF] flex items-center justify-center p-1 shadow-inner">
+                    <img src={CHARACTERS.find(c => c.id === players.find(p => p.id === s.playerId)?.avatar)?.src} className="w-10 h-10 object-contain" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-black uppercase">{s.name}</div>
+                    <div className={`text-sm font-bold uppercase opacity-60 ${selectedSolution === s.id ? 'text-white' : 'text-black'}`}>By {players.find(p => p.id === s.playerId)?.name}</div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -125,7 +131,14 @@ export function AwardRoom() {
               
               <div className="flex justify-center gap-4">
                 {players.map(p => (
-                  <div key={p.id} className={`w-4 h-4 rounded-full transition-colors ${p.status === 'awarded' ? 'bg-[#E9535E]' : 'bg-black/10'}`} />
+                  <div key={p.id} className="relative">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden transition-all ${p.status === 'awarded' ? 'ring-4 ring-[#E9535E] bg-white' : 'bg-black/10 opacity-30'}`}>
+                       <img src={CHARACTERS.find(c => c.id === p.avatar)?.src} className="w-8 h-8 object-contain" />
+                    </div>
+                    {p.status === 'awarded' && (
+                       <Star className="w-5 h-5 text-[#E9535E] fill-[#E9535E] absolute -top-1 -right-1" />
+                    )}
+                  </div>
                 ))}
               </div>
            </div>

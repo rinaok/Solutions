@@ -126,8 +126,8 @@ export function Landing() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-end p-8 bg-[#D9D9D9] overflow-hidden relative">
-      <div className="absolute top-[-20%] right-[-20%] w-[140vw] aspect-square bg-white rounded-full -z-0" />
+    <div className="min-h-screen flex flex-col items-center justify-end p-8 bg-[#DFDFDF] overflow-hidden relative">
+      <div className="absolute top-[-20%] right-[-20%] w-[140vw] aspect-square bg-[#DFDFDF] rounded-full -z-0" />
 
       <motion.div
         initial={{ y: 20, opacity: 0 }}
@@ -276,10 +276,6 @@ export function Landing() {
                     </div>
                   </button>
                 ))}
-                {/* Visual extra slots from mockup */}
-                <div className="w-14 h-14 rounded-full bg-[#737373]" />
-                <div className="w-14 h-14 rounded-full bg-white shadow-inner" />
-                <div className="w-14 h-14 rounded-full bg-white shadow-inner" />
               </div>
             </motion.div>
           )}

@@ -6,6 +6,7 @@ import { Stage, Layer, Line, Text } from 'react-konva';
 import { motion } from 'motion/react';
 import { Eraser, Pencil, Save, CheckCircle, Loader2, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { handleFirestoreError, OperationType } from '../errorHandlers';
+import { CHARACTERS } from '../constants';
 
 const STICKERS = [
   '🚀', '💡', '🛠️', '🧬', '⚡', '🌈', '🧠', '🤖', '🌍', '🔥', '💎', '🎨'
@@ -105,7 +106,7 @@ export function CreatorRoom() {
   }, [everyoneReady, room?.id, room?.hostId, user?.uid, room?.status, players]);
 
   return (
-    <div className="min-h-screen flex flex-col p-8 bg-[#FDFCF0]">
+    <div className="min-h-screen flex flex-col p-8 bg-[#DFDFDF]">
       <div className="flex flex-col md:flex-row justify-between gap-8 mb-8">
         <div className="space-y-2">
           <span className="text-xs font-bold uppercase bg-[#E9535E]/10 text-[#E9535E] px-3 py-1 rounded-full">The Prompt</span>
@@ -216,11 +217,14 @@ export function CreatorRoom() {
 
          <div className="space-y-6">
             <h3 className="text-xl font-black uppercase text-[#E9535E]">Authors</h3>
-            <div className="space-y-2">
+            <div className="space-y-3">
                {players.map(p => (
-                 <div key={p.id} className={`p-4 rounded-2xl flex justify-between uppercase font-bold transition-all shadow-sm ${p.isReady ? 'bg-[#E9535E] text-white' : 'bg-white opacity-50'}`}>
-                    <span>{p.name}</span>
-                    <span className="text-xs">{p.isReady ? 'DONE' : 'SKETCHING'}</span>
+                 <div key={p.id} className={`p-3 rounded-2xl flex items-center gap-3 uppercase font-bold transition-all shadow-sm ${p.isReady ? 'bg-[#E9535E] text-white' : 'bg-white opacity-50'}`}>
+                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
+                       <img src={CHARACTERS.find(c => c.id === p.avatar)?.src} className="w-6 h-6 object-contain" />
+                    </div>
+                    <span className="flex-1 truncate">{p.name}</span>
+                    <span className="text-[10px]">{p.isReady ? 'DONE' : '...'}</span>
                  </div>
                ))}
             </div>

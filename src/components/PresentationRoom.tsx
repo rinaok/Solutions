@@ -5,6 +5,7 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { motion } from 'motion/react';
 import { Play, SkipForward, Mic2, Megaphone } from 'lucide-react';
 import { handleFirestoreError, OperationType } from '../errorHandlers';
+import { CHARACTERS } from '../constants';
 
 export function PresentationRoom() {
   const { room, players, solutions, user } = useGame();
@@ -31,15 +32,17 @@ export function PresentationRoom() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col p-8 bg-[#FDFCF0]">
+    <div className="min-h-screen flex flex-col p-8 bg-[#DFDFDF]">
       <div className="flex justify-between items-center mb-8">
         <div>
           <span className="text-xs font-bold uppercase bg-[#E9535E]/10 text-[#E9535E] px-3 py-1 rounded-full">Now Reading</span>
           <h1 className="text-5xl font-black uppercase tracking-tight">{solution?.name || 'Loading...'}</h1>
         </div>
-        <div className="flex items-center gap-4 bg-[#E9535E] text-white p-4 rounded-3xl shadow-xl">
-           <Megaphone className="w-8 h-8" />
-           <div className="text-right">
+        <div className="flex items-center gap-4 bg-[#E9535E] text-white pr-6 p-2 rounded-full shadow-xl">
+           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center p-2 shadow-inner">
+              <img src={CHARACTERS.find(c => c.id === presenter?.avatar)?.src} className="w-12 h-12 object-contain" />
+           </div>
+           <div className="text-left">
               <div className="text-[10px] font-bold uppercase opacity-60">Author</div>
               <div className="text-2xl font-black uppercase">{presenter?.name}</div>
            </div>
@@ -84,17 +87,20 @@ export function PresentationRoom() {
                </p>
             </div>
 
-            <div className="space-y-4">
-               <h4 className="text-xs font-bold uppercase opacity-40 px-2">Next Authors</h4>
-               <div className="space-y-2">
-                  {players.map(p => (
-                    <div key={p.id} className={`p-4 rounded-2xl font-bold uppercase flex justify-between transition-all ${p.id === currentPresenterId ? 'bg-[#E9535E] text-white shadow-lg' : 'bg-white opacity-40 shadow-sm'}`}>
-                      <span>{p.name}</span>
-                      {p.id === currentPresenterId && <span className="text-xs animate-pulse">LIVE</span>}
-                    </div>
-                  ))}
-               </div>
-            </div>
+             <div className="space-y-4">
+                <h4 className="text-xs font-bold uppercase opacity-40 px-2 text-black">Next Authors</h4>
+                <div className="space-y-2">
+                   {players.map(p => (
+                     <div key={p.id} className={`p-3 rounded-2xl font-bold uppercase flex items-center gap-3 transition-all ${p.id === currentPresenterId ? 'bg-[#E9535E] text-white shadow-lg' : 'bg-white opacity-40 shadow-sm'}`}>
+                       <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
+                          <img src={CHARACTERS.find(c => c.id === p.avatar)?.src} className="w-6 h-6 object-contain" />
+                       </div>
+                       <span className="flex-1 truncate">{p.name}</span>
+                       {p.id === currentPresenterId && <span className="text-[10px] animate-pulse">LIVE</span>}
+                     </div>
+                   ))}
+                </div>
+             </div>
 
             {isHost && (
               <button

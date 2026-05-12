@@ -3,6 +3,7 @@ import { useGame } from '../GameContext';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Trophy, Home } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { CHARACTERS } from '../constants';
 
 export function FinaleRoom() {
   const { solutions, players, leaveRoom } = useGame();
@@ -12,12 +13,12 @@ export function FinaleRoom() {
       particleCount: 150,
       spread: 70,
       origin: { y: 0.6 },
-      colors: ['#E9535E', '#000000', '#FDFCF0']
+      colors: ['#E9535E', '#000000', '#DFDFDF']
     });
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col p-8 bg-[#FDFCF0] overflow-y-auto">
+    <div className="min-h-screen flex flex-col p-8 bg-[#DFDFDF] overflow-y-auto">
       <div className="text-center mb-16 space-y-6">
         <h1 className="text-9xl font-black uppercase tracking-tighter leading-none italic">
           FINISHED<br />WORKS
@@ -40,9 +41,16 @@ export function FinaleRoom() {
               transition={{ delay: i * 0.2 }}
               className="bg-white rounded-[40px] flex flex-col group hover:-translate-y-2 transition-all shadow-xl overflow-hidden border-4 border-white"
             >
-              <div className="p-6 border-b border-black/5 flex justify-between items-center bg-[#FDFCF0]/50 backdrop-blur-sm">
-                <div className="font-black text-xl uppercase truncate">{sol.name}</div>
-                <div className="text-xs font-bold uppercase opacity-40">By {player?.name}</div>
+              <div className="p-4 border-b border-black/5 flex justify-between items-center bg-white">
+                <div className="flex items-center gap-3">
+                   <div className="w-10 h-10 rounded-full bg-[#DFDFDF] flex items-center justify-center p-1 shadow-inner">
+                      <img src={CHARACTERS.find(c => c.id === player?.avatar)?.src} className="w-8 h-8 object-contain" />
+                   </div>
+                   <div>
+                      <div className="font-black text-xl uppercase truncate">{sol.name}</div>
+                      <div className="text-[10px] font-bold uppercase opacity-40">By {player?.name}</div>
+                   </div>
+                </div>
               </div>
               
               <div className="flex-1 aspect-[4/3] relative bg-white overflow-hidden p-6">

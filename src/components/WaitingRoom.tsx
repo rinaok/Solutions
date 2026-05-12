@@ -37,47 +37,38 @@ export function WaitingRoom() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col p-8 bg-[#FDFCF0]">
+    <div className="min-h-screen flex flex-col p-8 bg-[#DFDFDF]">
       <div className="flex justify-between items-start mb-12">
         <div className="space-y-4">
-          <button onClick={handleExit} className="flex items-center gap-2 font-bold uppercase hover:opacity-60 transition-opacity">
-            <ArrowLeft className="w-4 h-4" /> Go Back
+          <button onClick={handleExit} className="flex items-center gap-2 font-black uppercase hover:opacity-60 transition-opacity">
+            <ArrowLeft className="w-5 h-5" /> Go Back
           </button>
           <div className="flex items-center gap-4">
-             <span className="text-xs font-bold uppercase bg-[#E9535E] text-white px-3 py-1 rounded-full">Page</span>
              <h2 className="text-6xl font-black uppercase tracking-widest">{room?.roomCode}</h2>
-             <button onClick={copyCode} className="p-3 bg-white hover:bg-[#E9535E]/10 rounded-full transition-colors">
+             <button onClick={copyCode} className="p-3 bg-white hover:shadow-md rounded-full transition-all active:scale-90">
                <Copy className="w-6 h-6" />
              </button>
           </div>
         </div>
-        <div className="text-right">
-          <div className="text-xs font-bold uppercase opacity-60">Status</div>
-          <div className="text-xl font-black uppercase text-[#E9535E]">Opening Notebook...</div>
-        </div>
       </div>
 
       <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 space-y-6">
-          <h3 className="text-3xl font-black uppercase flex items-center gap-3">
-            <Users className="w-8 h-8" />
-            Contributors ({players.length})
-          </h3>
-          <div className="grid grid-cols-2 gap-4">
+        <div className="md:col-span-2">
+          <div className="flex flex-wrap gap-4">
             {players.map((p, i) => (
               <motion.div
                 key={p.id}
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: i * 0.1 }}
-                className="flex items-center gap-4 bg-white rounded-3xl p-4 relative overflow-hidden shadow-sm"
+                className="flex items-center gap-4 bg-white rounded-full p-4 relative overflow-hidden shadow-md"
               >
-                <div className="w-12 h-12 bg-[#FDFCF0] flex items-center justify-center rounded-2xl overflow-hidden relative">
+                <div className="w-16 h-16 bg-white flex items-center justify-center rounded-full overflow-hidden relative shadow-inner">
                   {p.avatar ? (
                     <>
                       <img 
                         src={CHARACTERS.find(c => c.id === p.avatar)?.src} 
-                        className="w-10 h-10 object-contain relative z-10"
+                        className="w-14 h-14 object-contain relative z-10"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.style.display = 'none';
@@ -88,7 +79,7 @@ export function WaitingRoom() {
                           }
                         }}
                       />
-                      <div className="mini-fallback hidden text-2xl">
+                      <div className="mini-fallback hidden text-3xl">
                         {CHARACTERS.find(c => c.id === p.avatar)?.emoji}
                       </div>
                     </>
@@ -98,49 +89,23 @@ export function WaitingRoom() {
                     </div>
                   )}
                 </div>
-                <div className="flex-1 font-bold text-xl uppercase truncate">{p.name}</div>
-                {room?.hostId === p.id && (
-                  <span className="absolute top-0 right-0 bg-[#E9535E] text-white text-[10px] font-bold uppercase px-3 py-1 rounded-bl-2xl">EDITOR</span>
-                )}
               </motion.div>
             ))}
           </div>
         </div>
 
-        <div className="space-y-8 bg-white rounded-[40px] p-8 flex flex-col justify-between shadow-xl">
-          <div className="space-y-6">
-             <h3 className="text-2xl font-black uppercase text-[#E9535E]">Notebook Rules</h3>
-             <ul className="space-y-4 font-bold uppercase text-sm">
-               <li className="flex items-center gap-3">
-                 <div className="w-2 h-2 bg-[#E9535E] rounded-full" />
-                 Wait for the group to assemble
-               </li>
-               <li className="flex items-center gap-3">
-                 <div className="w-2 h-2 bg-[#E9535E] rounded-full" />
-                 Editor starts the session
-               </li>
-               <li className="flex items-center gap-3">
-                 <div className="w-2 h-2 bg-[#E9535E] rounded-full" />
-                 Sketch unconventional solutions
-               </li>
-               <li className="flex items-center gap-3">
-                 <div className="w-2 h-2 bg-[#E9535E] rounded-full" />
-                 Award the best ideas
-               </li>
-             </ul>
-          </div>
-          
+        <div className="flex flex-col justify-end">
           {isHost ? (
             <button
               onClick={startGame}
               disabled={players.length < 2}
-              className="w-full flex items-center justify-center gap-3 bg-[#E9535E] text-white p-6 font-bold uppercase rounded-full hover:opacity-90 transition-all group active:scale-95 disabled:opacity-30"
+              className="w-full flex items-center justify-center gap-3 bg-[#E9535E] text-white p-6 font-black uppercase rounded-full hover:opacity-90 transition-all group active:scale-95 disabled:opacity-30"
             >
               <Play className="w-6 h-6 fill-current" />
-              START WRITING
+              Everyone is in!
             </button>
           ) : (
-            <div className="bg-black text-white p-6 text-center font-bold uppercase animate-pulse rounded-full">
+            <div className="bg-black text-white p-6 text-center font-black uppercase animate-pulse rounded-full">
               Waiting for Editor...
             </div>
           )}
