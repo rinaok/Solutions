@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGame } from '../GameContext';
 import { db } from '../firebase';
-import { doc, setDoc, updateDoc } from 'firebase/firestore';
-import { Stage, Layer, Line, Image as KonvaImage } from 'react-konva';
+import { doc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { Stage, Layer, Line, Text } from 'react-konva';
 import { motion } from 'motion/react';
 import { Eraser, Pencil, Save, CheckCircle, Loader2, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { handleFirestoreError, OperationType } from '../errorHandlers';
@@ -24,8 +24,16 @@ export function CreatorRoom() {
 
   const handleMouseDown = (e: any) => {
     if (isDone) return;
+    // Prevent default to avoid scrolling on touch
+    if (e.evt && e.evt.preventDefault) {
+      // Only prevent default if it's a touch event to avoid blocking clicks
+      if (e.evt.type.startsWith('touch')) {
+        // e.evt.preventDefault(); // This might block other interactions, be careful
+      }
+    }
     isDrawing.current = true;
-    const pos = e.target.getStage().getPointerPosition();
+    const stage = e.target.getStage();
+    const pos = stage.getPointerPosition();
     setLines([...lines, { tool, points: [pos.x, pos.y] }]);
   };
 
@@ -33,10 +41,16 @@ export function CreatorRoom() {
     if (!isDrawing.current || isDone) return;
     const stage = e.target.getStage();
     const point = stage.getPointerPosition();
-    let lastLine = lines[lines.length - 1];
+    
+    // Check if we have lines
+    if (lines.length === 0) return;
+
+    let lastLine = { ...lines[lines.length - 1] };
     lastLine.points = lastLine.points.concat([point.x, point.y]);
-    lines.splice(lines.length - 1, 1, lastLine);
-    setLines(lines.concat());
+    
+    const newLines = lines.slice(0, -1);
+    newLines.push(lastLine);
+    setLines(newLines);
   };
 
   const handleMouseUp = () => {
@@ -60,7 +74,7 @@ export function CreatorRoom() {
         playerId: user.uid,
         name,
         canvasData: JSON.stringify({ lines, stickers }),
-        createdAt: new Date().toISOString()
+        createdAt: serverTimestamp()
       });
 
       await updateDoc(doc(db, 'rooms', room.id, 'players', user.uid), {
@@ -91,51 +105,51 @@ export function CreatorRoom() {
   }, [everyoneReady, room?.id, room?.hostId, user?.uid, room?.status, players]);
 
   return (
-    <div className="min-h-screen flex flex-col p-8 border-8 border-black">
+    <div className="min-h-screen flex flex-col p-8 bg-[#FDFCF0]">
       <div className="flex flex-col md:flex-row justify-between gap-8 mb-8">
         <div className="space-y-2">
-          <span className="text-xs font-black uppercase bg-[#00FF00] px-2 py-1 border-2 border-black">The Protocol</span>
+          <span className="text-xs font-bold uppercase bg-[#E9535E]/10 text-[#E9535E] px-3 py-1 rounded-full">The Prompt</span>
           <h2 className="text-4xl font-black uppercase tracking-tight max-w-2xl">{room?.selectedPrompt}</h2>
         </div>
         
-        <div className="space-y-4">
-           <label className="text-xs font-black uppercase block">Solution Title</label>
+        <div className="w-full md:w-80 space-y-2">
+           <label className="text-xs font-bold uppercase block opacity-60">Entry Title</label>
            <input 
              type="text" 
              value={name} 
-             onChange={(e) => setName(e.target.value)} 
+             onChange={(e) => setName(e.target.value.toUpperCase())} 
              disabled={isDone}
-             placeholder="THE X-PROJECT"
-             className="bg-white border-4 border-black p-4 text-xl font-bold uppercase focus:bg-[#00FF00] outline-none disabled:opacity-50"
+             placeholder="UNTITLED WORK"
+             className="w-full bg-white rounded-2xl p-4 text-xl font-bold uppercase focus:ring-4 focus:ring-[#E9535E]/20 outline-none disabled:opacity-50 transition-all shadow-sm"
            />
         </div>
       </div>
 
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-8">
          <div className="space-y-4">
-            <h3 className="text-xl font-black uppercase bg-black text-white p-2">Tools</h3>
+            <h3 className="text-xl font-black uppercase text-[#E9535E]">Pencils</h3>
             <div className="grid grid-cols-2 gap-2">
                <button 
                  onClick={() => setTool('pencil')}
-                 className={`p-4 border-4 border-black flex flex-col items-center gap-2 font-bold uppercase ${tool === 'pencil' ? 'bg-[#00FF00]' : 'bg-white'}`}
+                 className={`p-4 rounded-2xl flex flex-col items-center gap-2 font-bold uppercase transition-all ${tool === 'pencil' ? 'bg-[#E9535E] text-white shadow-lg' : 'bg-white text-black/40 hover:text-black shadow-sm'}`}
                >
-                 <Pencil /> Draw
+                 <Pencil /> Sketch
                </button>
                <button 
                  onClick={() => setTool('eraser')}
-                 className={`p-4 border-4 border-black flex flex-col items-center gap-2 font-bold uppercase ${tool === 'eraser' ? 'bg-[#00FF00]' : 'bg-white'}`}
+                 className={`p-4 rounded-2xl flex flex-col items-center gap-2 font-bold uppercase transition-all ${tool === 'eraser' ? 'bg-[#E9535E] text-white shadow-lg' : 'bg-white text-black/40 hover:text-black shadow-sm'}`}
                >
                  <Eraser /> Erase
                </button>
             </div>
             
-            <h3 className="text-xl font-black uppercase bg-black text-white p-2 mt-8">Stickers</h3>
+            <h3 className="text-xl font-black uppercase text-[#E9535E] mt-8">Scrapbook</h3>
             <div className="grid grid-cols-4 gap-2">
                {STICKERS.map(s => (
                  <button 
                    key={s} 
                    onClick={() => addSticker(s)}
-                   className="p-3 border-2 border-black hover:bg-[#00FF00] text-2xl"
+                   className="p-3 bg-white rounded-xl hover:bg-[#E9535E]/10 text-2xl transition-colors shadow-sm"
                  >
                    {s}
                  </button>
@@ -143,13 +157,16 @@ export function CreatorRoom() {
             </div>
          </div>
 
-         <div className="lg:col-span-2 bg-[#E4E3E0] border-8 border-black relative overflow-hidden cursor-crosshair h-[600px]">
+         <div className="lg:col-span-2 bg-white rounded-[40px] relative overflow-hidden cursor-crosshair h-[600px] touch-none shadow-2xl border-4 border-white">
              <Stage
                width={800}
                height={600}
                onMouseDown={handleMouseDown}
                onMouseMove={handleMouseMove}
                onMouseUp={handleMouseUp}
+               onTouchStart={handleMouseDown}
+               onTouchMove={handleMouseMove}
+               onTouchEnd={handleMouseUp}
                ref={stageRef}
              >
                 <Layer>
@@ -158,7 +175,7 @@ export function CreatorRoom() {
                        key={i}
                        points={line.points}
                        stroke="#000000"
-                       strokeWidth={line.tool === 'eraser' ? 20 : 5}
+                       strokeWidth={line.tool === 'eraser' ? 20 : 3}
                        tension={0.5}
                        lineCap="round"
                        globalCompositeOperation={
@@ -168,34 +185,42 @@ export function CreatorRoom() {
                    ))}
                 </Layer>
                 <Layer>
-                   {/* Stickers are rendered via DOM overlay for simplicity */}
+                   {stickers.map((s, i) => (
+                     <Text
+                        key={s.id}
+                        text={s.emoji}
+                        x={s.x}
+                        y={s.y}
+                        fontSize={50}
+                        draggable={!isDone}
+                        onDragEnd={(e) => {
+                           const newStickers = stickers.slice();
+                           newStickers[i] = { ...s, x: e.target.x(), y: e.target.y() };
+                           setStickers(newStickers);
+                        }}
+                     />
+                   ))}
                 </Layer>
              </Stage>
-             {/* Sticker Overlay (pure DOM for simplicity in this demo or use proper Konva Text) */}
-             <div className="absolute inset-0 pointer-events-none">
-                {stickers.map(s => (
-                  <div key={s.id} className="absolute text-5xl" style={{ left: s.x, top: s.y }}>{s.emoji}</div>
-                ))}
-             </div>
 
              {isDone && (
-               <div className="absolute inset-0 bg-white/60 flex items-center justify-center p-8 text-center">
-                  <div className="bg-black text-[#00FF00] p-12 border-4 border-[#00FF00] space-y-4">
+               <div className="absolute inset-0 bg-white/80 flex items-center justify-center p-8 text-center backdrop-blur-sm rounded-[40px]">
+                  <div className="bg-[#E9535E] text-white p-12 rounded-[40px] shadow-2xl space-y-4">
                      <CheckCircle className="w-16 h-16 mx-auto" />
-                     <h2 className="text-4xl font-black uppercase">Solution Logged</h2>
-                     <p className="font-bold uppercase">Waiting for other researchers...</p>
+                     <h2 className="text-4xl font-black uppercase">Work Saved</h2>
+                     <p className="font-bold uppercase opacity-80">Waiting for other writers...</p>
                   </div>
                </div>
              )}
          </div>
 
          <div className="space-y-6">
-            <h3 className="text-xl font-black uppercase bg-black text-white p-2">Status</h3>
+            <h3 className="text-xl font-black uppercase text-[#E9535E]">Authors</h3>
             <div className="space-y-2">
                {players.map(p => (
-                 <div key={p.id} className={`p-3 border-2 border-black flex justify-between uppercase font-black ${p.isReady ? 'bg-[#00FF00]' : 'bg-white opacity-50'}`}>
+                 <div key={p.id} className={`p-4 rounded-2xl flex justify-between uppercase font-bold transition-all shadow-sm ${p.isReady ? 'bg-[#E9535E] text-white' : 'bg-white opacity-50'}`}>
                     <span>{p.name}</span>
-                    <span>{p.isReady ? 'READY' : 'WORKING'}</span>
+                    <span className="text-xs">{p.isReady ? 'DONE' : 'SKETCHING'}</span>
                  </div>
                ))}
             </div>
@@ -204,10 +229,10 @@ export function CreatorRoom() {
               <button 
                 onClick={handleSave}
                 disabled={!name || lines.length === 0}
-                className="w-full flex items-center justify-center gap-3 bg-black text-[#00FF00] p-6 font-black uppercase hover:bg-[#00FF00] hover:text-black transition-all border-4 border-black disabled:opacity-30"
+                className="w-full flex items-center justify-center gap-3 bg-black text-white p-6 font-bold uppercase rounded-full hover:opacity-90 transition-all disabled:opacity-30 shadow-xl"
               >
                 {isSaving ? <Loader2 className="animate-spin" /> : <Save />}
-                PUBLISH SOLUTION
+                FINISH SKETCH
               </button>
             )}
          </div>

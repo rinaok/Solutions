@@ -12,18 +12,18 @@ export function FinaleRoom() {
       particleCount: 150,
       spread: 70,
       origin: { y: 0.6 },
-      colors: ['#00FF00', '#000000', '#FFFFFF']
+      colors: ['#E9535E', '#000000', '#FDFCF0']
     });
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col p-8 border-8 border-black bg-[#00FF00]/5 overflow-y-auto">
+    <div className="min-h-screen flex flex-col p-8 bg-[#FDFCF0] overflow-y-auto">
       <div className="text-center mb-16 space-y-6">
         <h1 className="text-9xl font-black uppercase tracking-tighter leading-none italic">
-          GRAND<br />FINALE
+          FINISHED<br />WORKS
         </h1>
-        <p className="text-3xl font-bold uppercase tracking-widest bg-black text-white inline-block px-8 py-2">
-          Innovation Showcase
+        <p className="text-3xl font-bold uppercase tracking-widest text-[#E9535E]">
+          The Shared Sketchbook
         </p>
       </div>
 
@@ -38,14 +38,14 @@ export function FinaleRoom() {
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: i * 0.2 }}
-              className="bg-white border-8 border-black flex flex-col group hover:-rotate-1 transition-transform"
+              className="bg-white rounded-[40px] flex flex-col group hover:-translate-y-2 transition-all shadow-xl overflow-hidden border-4 border-white"
             >
-              <div className="p-4 border-b-4 border-black flex justify-between items-center bg-[#E4E3E0]">
-                <div className="font-black uppercase truncate">{sol.name}</div>
-                <div className="text-[10px] font-black uppercase opacity-60">By {player?.name}</div>
+              <div className="p-6 border-b border-black/5 flex justify-between items-center bg-[#FDFCF0]/50 backdrop-blur-sm">
+                <div className="font-black text-xl uppercase truncate">{sol.name}</div>
+                <div className="text-xs font-bold uppercase opacity-40">By {player?.name}</div>
               </div>
               
-              <div className="flex-1 aspect-[4/3] relative bg-[#FFFFFF] overflow-hidden">
+              <div className="flex-1 aspect-[4/3] relative bg-white overflow-hidden p-6">
                 <svg viewBox="0 0 800 600" className="w-full h-full opacity-30 group-hover:opacity-100 transition-opacity">
                   {canvasData.lines.map((line: any, j: number) => (
                     <polyline
@@ -53,26 +53,31 @@ export function FinaleRoom() {
                       points={line.points.join(',')}
                       fill="none"
                       stroke={line.tool === 'eraser' ? 'white' : 'black'}
-                      strokeWidth={line.tool === 'eraser' ? 20 : 5}
+                      strokeWidth={line.tool === 'eraser' ? 20 : 3}
                       strokeLinecap="round"
                     />
                   ))}
-                </svg>
-                <div className="absolute inset-0 pointer-events-none opacity-40 group-hover:opacity-100">
                   {canvasData.stickers.map((s: any) => (
-                    <div key={s.id} className="absolute text-5xl" style={{ left: s.x, top: s.y }}>{s.emoji}</div>
+                    <text
+                      key={s.id}
+                      x={s.x}
+                      y={s.y + 40}
+                      fontSize="50"
+                    >
+                      {s.emoji}
+                    </text>
                   ))}
-                </div>
+                </svg>
 
                 {sol.prize && (
                   <motion.div 
                     initial={{ scale: 0, rotate: -20 }}
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ delay: i * 0.2 + 0.5, type: 'spring' }}
-                    className="absolute -bottom-4 -right-4 bg-white border-4 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-20 flex flex-col items-center"
+                    className="absolute bottom-6 right-6 bg-white p-4 rounded-2xl shadow-xl z-20 flex flex-col items-center border-2 border-black/5"
                   >
-                    <div className="text-2xl mb-1">🏆</div>
-                    <div className="text-xs font-black uppercase text-center leading-none max-w-[80px]">
+                    <div className="text-3xl mb-1">🌟</div>
+                    <div className="text-[10px] font-black uppercase text-center leading-tight max-w-[80px] text-[#E9535E]">
                       {sol.prize.name}
                     </div>
                   </motion.div>
@@ -86,10 +91,10 @@ export function FinaleRoom() {
       <div className="mt-auto flex justify-center pb-12">
         <button
           onClick={leaveRoom}
-          className="group flex items-center gap-4 bg-black text-white px-12 py-6 text-3xl font-black uppercase hover:bg-[#00FF00] hover:text-black transition-all border-4 border-black active:scale-95"
+          className="group flex items-center gap-4 bg-black text-white px-12 py-6 text-3xl font-bold uppercase rounded-full hover:bg-[#E9535E] shadow-2xl transition-all active:scale-95"
         >
           <Home className="w-8 h-8" />
-          End Mission
+          Close Book
         </button>
       </div>
     </div>

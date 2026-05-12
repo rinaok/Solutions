@@ -29,7 +29,8 @@ export function AwardRoom() {
       // Award the solution
       await updateDoc(doc(db, 'rooms', room.id, 'solutions', selectedSolution), {
         prize: {
-          ...selectedPrize,
+          id: selectedPrize.id,
+          name: selectedPrize.name,
           from: user.displayName || 'Researcher'
         }
       });
@@ -55,44 +56,44 @@ export function AwardRoom() {
   const everyoneAwarded = players.every(p => p.status === 'awarded');
 
   return (
-    <div className="min-h-screen flex flex-col p-8 border-8 border-black">
+    <div className="min-h-screen flex flex-col p-8 bg-[#FDFCF0]">
       <div className="mb-12">
-        <h1 className="text-6xl font-black uppercase tracking-tighter mb-4">Awards Ceremony</h1>
-        <p className="text-xl font-bold uppercase opacity-60">Grant a prestigious prize to your fellow researchers.</p>
+        <h1 className="text-6xl font-black uppercase tracking-tighter mb-2">Peer Review</h1>
+        <p className="text-xl font-bold uppercase opacity-60">Give a gold seal to your favorite entry.</p>
       </div>
 
       {!isAwarded ? (
         <div className="flex-1 flex flex-col lg:flex-row gap-12">
           <div className="flex-1 space-y-6">
-            <h3 className="text-2xl font-black uppercase">1. Select Candidate</h3>
+            <h3 className="text-2xl font-black uppercase text-[#E9535E]">1. Best Entry</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {solutions.filter(s => s.playerId !== user?.uid).map(s => (
                 <div 
                   key={s.id}
                   onClick={() => setSelectedSolution(s.id)}
-                  className={`cursor-pointer p-6 border-4 border-black transition-all ${
-                    selectedSolution === s.id ? 'bg-[#00FF00] -translate-y-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'bg-white hover:bg-[#E4E3E0]'
+                  className={`cursor-pointer p-6 rounded-[32px] transition-all relative overflow-hidden ${
+                    selectedSolution === s.id ? 'bg-[#E9535E] text-white shadow-xl translate-y-[-4px]' : 'bg-white hover:bg-[#E4E3E0] shadow-sm'
                   }`}
                 >
                   <div className="text-2xl font-black uppercase">{s.name}</div>
-                  <div className="text-sm font-bold opacity-60 uppercase">By {players.find(p => p.id === s.playerId)?.name}</div>
+                  <div className={`text-sm font-bold uppercase opacity-60 ${selectedSolution === s.id ? 'text-white' : 'text-black'}`}>By {players.find(p => p.id === s.playerId)?.name}</div>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="flex-1 space-y-6">
-             <h3 className="text-2xl font-black uppercase">2. Choose Prize</h3>
+             <h3 className="text-2xl font-black uppercase text-[#E9535E]">2. Select Seal</h3>
              <div className="grid grid-cols-2 gap-4">
                {PRIZES.map(prize => (
                  <div 
                    key={prize.id}
                    onClick={() => setSelectedPrize(prize)}
-                   className={`cursor-pointer p-6 border-4 border-black flex items-center gap-4 transition-all ${
-                     selectedPrize?.id === prize.id ? 'bg-[#00FF00] -translate-y-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'bg-white hover:bg-[#E4E3E0]'
+                   className={`cursor-pointer p-6 rounded-[32px] flex items-center gap-4 transition-all relative overflow-hidden ${
+                     selectedPrize?.id === prize.id ? 'bg-[#E9535E] text-white shadow-xl translate-y-[-4px]' : 'bg-white hover:bg-[#E4E3E0] shadow-sm'
                    }`}
                  >
-                   <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white shadow-sm">
                      {prize.icon}
                    </div>
                    <div className="text-xl font-black uppercase leading-tight">{prize.name}</div>
@@ -105,36 +106,51 @@ export function AwardRoom() {
              <button
                onClick={handleAward}
                disabled={!selectedSolution || !selectedPrize}
-               className="w-full bg-black text-[#00FF00] p-8 font-black uppercase border-4 border-black hover:bg-[#00FF00] hover:text-black transition-all disabled:opacity-20"
+               className="w-full bg-black text-white p-8 font-bold uppercase rounded-full hover:opacity-90 transition-all disabled:opacity-20 shadow-xl"
              >
-               Grant Prize
+               Apply Seal
              </button>
           </div>
         </div>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center space-y-8">
-           <div className="bg-[#00FF00] border-8 border-black p-12 text-center space-y-6">
-              <Gift className="w-24 h-24 mx-auto" />
-              <h2 className="text-5xl font-black uppercase">Medal Granted</h2>
-              <p className="text-xl font-bold uppercase opacity-60">Waiting for other researchers to finish their evaluations...</p>
-           </div>
-           
-           <div className="flex gap-4">
-             {players.map(p => (
-               <div key={p.id} className={`w-3 h-3 rounded-full border-2 border-black ${p.status === 'awarded' ? 'bg-[#00FF00]' : 'bg-white'}`} />
-             ))}
+           <div className="bg-white p-16 text-center rounded-[60px] shadow-2xl space-y-8 max-w-2xl w-full border-4 border-white">
+              <div className="w-32 h-32 bg-[#E9535E]/10 rounded-full flex items-center justify-center mx-auto">
+                <Gift className="w-16 h-16 text-[#E9535E]" />
+              </div>
+              <div className="space-y-4">
+                <h2 className="text-5xl font-black uppercase text-[#E9535E]">Seal Applied</h2>
+                <p className="text-xl font-bold uppercase opacity-60">Waiting for other writers to finish their reviews...</p>
+              </div>
+              
+              <div className="flex justify-center gap-4">
+                {players.map(p => (
+                  <div key={p.id} className={`w-4 h-4 rounded-full transition-colors ${p.status === 'awarded' ? 'bg-[#E9535E]' : 'bg-black/10'}`} />
+                ))}
+              </div>
            </div>
         </div>
       )}
 
-      {isHost && (
-        <div className="mt-12 pt-8 border-t-8 border-black flex justify-end">
+      {isHost && everyoneAwarded && !isAwarded && (
+        <div className="mt-12 flex justify-end">
+           <button
+             onClick={finishAwards}
+             className="bg-[#E9535E] text-white px-12 py-4 font-bold uppercase rounded-full shadow-xl hover:opacity-90 transition-all active:scale-95"
+           >
+             Finish Notebook
+           </button>
+        </div>
+      )}
+      
+      {isHost && isAwarded && (
+        <div className="mt-12 flex justify-end">
            <button
              onClick={finishAwards}
              disabled={!everyoneAwarded}
-             className="bg-black text-white px-12 py-4 font-black uppercase border-4 border-black hover:bg-[#00FF00] transition-colors disabled:opacity-30"
+             className="bg-black text-white px-12 py-4 font-bold uppercase rounded-full shadow-xl hover:opacity-90 transition-all disabled:opacity-30 active:scale-95"
            >
-             Commence Finale
+             Go to Finale
            </button>
         </div>
       )}

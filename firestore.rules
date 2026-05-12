@@ -1,10 +1,12 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Default deny
     match /{document=**} {
       allow read, write: if false;
     }
 
+    // Global helpers
     function isSignedIn() {
       return request.auth != null;
     }
@@ -13,50 +15,102 @@ service cloud.firestore {
       return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
 
-    match /rooms/{roomId} {
-      function isValidRoom(data) {
-        return data.roomCode is string && data.roomCode.size() == 6 &&
-               data.status in ['waiting', 'voting', 'creating', 'presenting', 'awarding', 'finale'] &&
-               isValidId(data.hostId);
-      }
-
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() && isValidRoom(request.resource.data) && 
-                      request.resource.data.hostId == request.auth.uid &&
-                      request.resource.data.createdAt == request.time;
-      
-      allow update: if isSignedIn() && isValidRoom(request.resource.data) &&
-                      (resource.data.hostId == request.auth.uid || 
-                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'selectedFormat', 'selectedPrompt', 'prompts', 'presentingPlayerId']));
+    function incoming() {
+      return request.resource.data;
     }
 
-    match /rooms/{roomId}/players/{playerId} {
-      function isValidPlayer(data) {
-        return data.keys().hasAll(['name']) && data.name is string && data.name.size() > 0 && data.name.size() <= 32;
+    function existing() {
+      return resource.data;
+    }
+
+    function isHost(roomId) {
+      return isSignedIn() && get(/databases/$(database)/documents/rooms/$(roomId)).data.hostId == request.auth.uid;
+    }
+
+    // --- ROOMS ---
+    match /rooms/{roomId} {
+      function isValidRoom(data) {
+        return data.roomCode is string && data.roomCode.size() == 4 &&
+               data.status is string && data.status in ['waiting', 'voting', 'creating', 'presenting', 'awarding', 'finale'] &&
+               isValidId(data.hostId) &&
+               (data.get('selectedPrompt', '') is string) &&
+               (data.get('presentingPlayerId', '') is string);
       }
 
       allow read: if isSignedIn();
-      allow create: if isSignedIn() && isValidPlayer(request.resource.data) && playerId == request.auth.uid;
+      
+      allow create: if isSignedIn() && 
+                      isValidRoom(incoming()) &&
+                      incoming().hostId == request.auth.uid &&
+                      incoming().createdAt == request.time &&
+                      incoming().keys().hasAll(['roomCode', 'status', 'hostId', 'createdAt']) &&
+                      incoming().keys().size() == 4;
+
       allow update: if isSignedIn() && (
-        (playerId == request.auth.uid && (
-          request.resource.data.diff(resource.data).affectedKeys().hasAny(['name', 'isReady', 'vote', 'status'])
-        )) ||
-        get(/databases/$(database)/documents/rooms/$(roomId)).data.hostId == request.auth.uid
+        // Host has full control over state transitions and prompt selection
+        (existing().hostId == request.auth.uid && isValidRoom(incoming())) ||
+        // Players might need to read but not update directly usually, 
+        // however some logic might trigger state changes if needed.
+        // Currently only host updates room status.
+        false
       );
     }
 
-    match /rooms/{roomId}/solutions/{playerId} {
-      function isValidSolution(data) {
-        return data.keys().hasAll(['playerId', 'name']) && 
-               data.name is string && data.name.size() <= 64 &&
-               data.playerId == playerId;
+    // --- PLAYERS ---
+    match /rooms/{roomId}/players/{playerId} {
+      function isValidPlayer(data) {
+        return data.name is string && data.name.size() > 0 && data.name.size() <= 32 &&
+               (data.get('isReady', false) is bool) &&
+               (data.get('vote', '') is string) &&
+               (data.get('status', '') is string) &&
+               (data.get('avatar', '') is string);
       }
 
       allow read: if isSignedIn();
-      allow create: if isSignedIn() && isValidSolution(request.resource.data) && playerId == request.auth.uid;
+      
+      allow create: if isSignedIn() && 
+                      isValidId(roomId) &&
+                      playerId == request.auth.uid &&
+                      isValidPlayer(incoming()) &&
+                      incoming().keys().hasAll(['name', 'isReady', 'joinedAt', 'avatar']) &&
+                      incoming().keys().size() == 4 &&
+                      incoming().joinedAt == request.time;
+
       allow update: if isSignedIn() && (
-        (playerId == request.auth.uid && isValidSolution(request.resource.data)) ||
-        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['prize']))
+        // Self update
+        (playerId == request.auth.uid && isValidPlayer(incoming()) && (
+          // Allow updating name, isReady, vote, status, avatar
+          incoming().diff(existing()).affectedKeys().hasOnly(['name', 'isReady', 'vote', 'status', 'avatar'])
+        )) ||
+        // Host update (e.g. kicking or forced status changes if app had it)
+        isHost(roomId)
+      );
+
+      allow delete: if isSignedIn() && (playerId == request.auth.uid || isHost(roomId));
+    }
+
+    // --- SOLUTIONS ---
+    match /rooms/{roomId}/solutions/{playerId} {
+      function isValidSolution(data) {
+        return data.playerId is string && data.playerId == playerId &&
+               data.name is string && data.name.size() <= 128 &&
+               data.canvasData is string && data.canvasData.size() <= 1048576; // 1MB limit check
+      }
+
+      allow read: if isSignedIn();
+      
+      allow create: if isSignedIn() && 
+                      playerId == request.auth.uid &&
+                      isValidSolution(incoming()) &&
+                      incoming().keys().hasAll(['playerId', 'name', 'canvasData', 'createdAt']);
+
+      allow update: if isSignedIn() && (
+        // Self update
+        (playerId == request.auth.uid && isValidSolution(incoming()) && 
+         incoming().diff(existing()).affectedKeys().hasOnly(['name', 'canvasData'])) ||
+        // Peer update for awards (only allowed to update the prize)
+        (incoming().diff(existing()).affectedKeys().hasOnly(['prize']) && 
+         incoming().prize.id is string && incoming().prize.name is string)
       );
     }
   }

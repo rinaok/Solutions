@@ -42,13 +42,13 @@ function GameRouter() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] text-[#000000] selection:bg-[#00FF00] selection:text-[#000000]">
+    <div className="min-h-screen bg-[#FDFCF0] text-[#000000] selection:bg-[#E9535E] selection:text-white">
       <AnimatePresence mode="wait">
         <motion.div
           key={room.status}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 1.02 }}
           transition={{ duration: 0.3 }}
           className="h-full"
         >

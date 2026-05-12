@@ -15,7 +15,7 @@
         "presentingPlayerId": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["roomCode", "status", "hostId"]
+      "required": ["roomCode", "status", "hostId", "createdAt"]
     },
     "Player": {
       "title": "Player",
@@ -38,10 +38,18 @@
       "properties": {
         "playerId": { "type": "string" },
         "name": { "type": "string" },
-        "canvasData": { "type": "string", "description": "JSON string of Konva stage" },
-        "prize": { "type": "object" }
+        "canvasData": { "type": "string", "description": "JSON string of Konva stage with lines and stickers" },
+        "prize": { 
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "name": { "type": "string" },
+            "from": { "type": "string" }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["playerId", "name"]
+      "required": ["playerId", "name", "canvasData"]
     }
   },
   "firestore": {
