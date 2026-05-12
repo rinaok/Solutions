@@ -1,0 +1,61 @@
+{
+  "entities": {
+    "Room": {
+      "title": "Room",
+      "description": "A game room containing the state of the match.",
+      "type": "object",
+      "properties": {
+        "roomCode": { "type": "string" },
+        "status": { "type": "string", "enum": ["waiting", "voting", "creating", "presenting", "awarding", "finale"] },
+        "hostId": { "type": "string" },
+        "currentRound": { "type": "number" },
+        "selectedFormat": { "type": "string" },
+        "selectedPrompt": { "type": "string" },
+        "prompts": { "type": "array", "items": { "type": "string" } },
+        "presentingPlayerId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["roomCode", "status", "hostId"]
+    },
+    "Player": {
+      "title": "Player",
+      "description": "A participant in a game room.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "avatar": { "type": "string" },
+        "isReady": { "type": "boolean" },
+        "vote": { "type": "string" },
+        "status": { "type": "string" },
+        "joinedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name"]
+    },
+    "Solution": {
+      "title": "Solution",
+      "description": "A player's proposed solution to the problem.",
+      "type": "object",
+      "properties": {
+        "playerId": { "type": "string" },
+        "name": { "type": "string" },
+        "canvasData": { "type": "string", "description": "JSON string of Konva stage" },
+        "prize": { "type": "object" }
+      },
+      "required": ["playerId", "name"]
+    }
+  },
+  "firestore": {
+    "rooms/{roomId}": {
+      "schema": "Room",
+      "description": "Main room document"
+    },
+    "rooms/{roomId}/players/{playerId}": {
+      "schema": "Player",
+      "description": "Players in the room"
+    },
+    "rooms/{roomId}/solutions/{playerId}": {
+      "schema": "Solution",
+      "description": "Solutions created by players"
+    }
+  }
+}

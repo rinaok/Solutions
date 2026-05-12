@@ -1,0 +1,63 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    match /rooms/{roomId} {
+      function isValidRoom(data) {
+        return data.roomCode is string && data.roomCode.size() == 6 &&
+               data.status in ['waiting', 'voting', 'creating', 'presenting', 'awarding', 'finale'] &&
+               isValidId(data.hostId);
+      }
+
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidRoom(request.resource.data) && 
+                      request.resource.data.hostId == request.auth.uid &&
+                      request.resource.data.createdAt == request.time;
+      
+      allow update: if isSignedIn() && isValidRoom(request.resource.data) &&
+                      (resource.data.hostId == request.auth.uid || 
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'selectedFormat', 'selectedPrompt', 'prompts', 'presentingPlayerId']));
+    }
+
+    match /rooms/{roomId}/players/{playerId} {
+      function isValidPlayer(data) {
+        return data.keys().hasAll(['name']) && data.name is string && data.name.size() > 0 && data.name.size() <= 32;
+      }
+
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidPlayer(request.resource.data) && playerId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        (playerId == request.auth.uid && (
+          request.resource.data.diff(resource.data).affectedKeys().hasAny(['name', 'isReady', 'vote', 'status'])
+        )) ||
+        get(/databases/$(database)/documents/rooms/$(roomId)).data.hostId == request.auth.uid
+      );
+    }
+
+    match /rooms/{roomId}/solutions/{playerId} {
+      function isValidSolution(data) {
+        return data.keys().hasAll(['playerId', 'name']) && 
+               data.name is string && data.name.size() <= 64 &&
+               data.playerId == playerId;
+      }
+
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidSolution(request.resource.data) && playerId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        (playerId == request.auth.uid && isValidSolution(request.resource.data)) ||
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['prize']))
+      );
+    }
+  }
+}
