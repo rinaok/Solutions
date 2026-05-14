@@ -56,29 +56,29 @@ export function PresentationRoom() {
   return (
     <div className="h-full flex flex-col bg-[#DFDFDF] overflow-hidden relative p-8">
       {/* Avatar Section */}
-      <div className="absolute top-8 left-8 z-10 flex flex-col items-center">
-        <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-xl border-8 border-white overflow-hidden">
-          <img src={character?.src} className="w-24 h-24 object-contain" />
+      <div className="absolute top-4 left-4 z-10 flex flex-col items-center">
+        <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-xl border-4 border-white overflow-hidden">
+          <img src={character?.src} className="w-14 h-14 object-contain" />
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center gap-4 max-w-lg mx-auto w-full pt-20">
+      <div className="flex-1 flex flex-col items-center justify-center gap-3 max-w-md mx-auto w-full pt-20">
         {/* Presenter Text */}
-        <div className="text-center">
-          <p className="text-[#A1A1A1] font-black uppercase text-sm tracking-tight mb-2">
+        <div className="text-center translate-x-4">
+          <p className="text-[#A1A1A1] font-black uppercase text-xs tracking-tight mb-1">
             {presenter?.name}'s Solution
           </p>
         </div>
 
         {/* Title Card */}
-        <div className="bg-white py-3 px-10 rounded-sm shadow-xl mb-4">
-          <h2 className="text-3xl font-black uppercase tracking-tight" style={{ color: brandColor }}>
+        <div className="bg-white py-2 px-8 rounded-sm shadow-xl mb-2 translate-x-4">
+          <h2 className="text-2xl font-black uppercase tracking-tight" style={{ color: brandColor }}>
             {solution?.name || 'Untitled'}
           </h2>
         </div>
 
         {/* Drawing Card */}
-        <div className="w-full aspect-[3/4] bg-white rounded-lg shadow-2xl overflow-hidden relative p-4 border-2 border-white">
+        <div className="w-[85%] aspect-[3/4] max-h-[50vh] bg-white rounded-lg shadow-2xl overflow-hidden relative p-4 border-2 border-white">
           <svg viewBox="0 0 340 450" className="w-full h-full">
             {canvasData.lines.map((line: any, i: number) => (
               <polyline

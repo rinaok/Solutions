@@ -154,12 +154,11 @@ export function CreatorRoom() {
             Waiting for everyone to submit their solution
           </h2>
 
-          <div className="relative w-full max-w-sm aspect-square">
+          <div className="relative w-full max-w-xs aspect-square">
             {players.map((p, i) => {
               // Create a organic cluster layout
-              const angles = [0, 45, 135, 210, 275, 330];
-              const angle = angles[i % angles.length] * (Math.PI / 180);
-              const radius = 100 + (i * 10);
+              const angle = (i * (360 / Math.max(1, players.length)) + 20) * (Math.PI / 180);
+              const radius = 90 + (i % 2 === 0 ? 15 : -15); // Reduced radius to fit on small screens
               const x = Math.cos(angle) * radius;
               const y = Math.sin(angle) * radius;
 
