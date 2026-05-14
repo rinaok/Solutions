@@ -13,6 +13,8 @@ export function PresentationRoom() {
   const currentPresenterId = room?.presentingPlayerId;
   const presenter = players.find(p => p.id === currentPresenterId);
   const solution = solutions.find(s => s.playerId === currentPresenterId);
+  const character = CHARACTERS.find(c => c.id === presenter?.avatar);
+  const brandColor = character?.color.replace('bg-[', '').replace(']', '') || '#ED5F69';
 
   const canvasData = solution ? JSON.parse(solution.canvasData) : { lines: [], stickers: [] };
 
@@ -32,86 +34,81 @@ export function PresentationRoom() {
   };
 
   return (
-    <div className="h-full flex flex-col p-4 md:p-8 bg-[#DFDFDF] overflow-y-auto">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <span className="text-xs font-bold uppercase bg-[#E9535E]/10 text-[#E9535E] px-3 py-1 rounded-full">Now Reading</span>
-          <h1 className="text-5xl font-black uppercase tracking-tight">{solution?.name || 'Loading...'}</h1>
-        </div>
-        <div className="flex items-center gap-4 bg-[#E9535E] text-white pr-6 p-2 rounded-full shadow-xl">
-           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center p-2 shadow-inner">
-              <img src={CHARACTERS.find(c => c.id === presenter?.avatar)?.src} className="w-12 h-12 object-contain" />
-           </div>
-           <div className="text-left">
-              <div className="text-[10px] font-bold uppercase opacity-60">Author</div>
-              <div className="text-2xl font-black uppercase">{presenter?.name}</div>
-           </div>
+    <div className="h-full flex flex-col bg-[#DFDFDF] overflow-hidden relative p-8">
+      {/* Avatar Section */}
+      <div className="absolute top-8 left-8 z-10 flex flex-col items-center">
+        <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-xl border-8 border-white overflow-hidden">
+          <img src={character?.src} className="w-24 h-24 object-contain" />
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col lg:flex-row gap-8">
-         <div className="flex-1 bg-white rounded-[40px] relative overflow-hidden h-[600px] shadow-2xl border-4 border-white">
-            {/* Displaying lines as SVG paths for simplicity in display view */}
-            <svg viewBox="0 0 800 600" className="w-full h-full">
-               {canvasData.lines.map((line: any, i: number) => (
-                 <polyline
-                   key={i}
-                   points={line.points.join(',')}
-                   fill="none"
-                   stroke={line.tool === 'eraser' ? 'white' : 'black'}
-                   strokeWidth={line.tool === 'eraser' ? 20 : 3}
-                   strokeLinecap="round"
-                   strokeLinejoin="round"
-                 />
-               ))}
-               {canvasData.stickers.map((s: any) => (
-                 <text
-                   key={s.id}
-                   x={s.x}
-                   y={s.y + 40}
-                   fontSize="50"
-                 >
-                   {s.emoji}
-                 </text>
-               ))}
-            </svg>
-         </div>
+      <div className="flex-1 flex flex-col items-center justify-center gap-4 max-w-lg mx-auto w-full pt-20">
+        {/* Presenter Text */}
+        <div className="text-center">
+          <p className="text-[#A1A1A1] font-black uppercase text-sm tracking-tight mb-2">
+            {presenter?.name}'s Solution
+          </p>
+        </div>
 
-          <div className="w-full lg:w-80 space-y-6">
-            <div className="bg-white rounded-3xl p-6 space-y-4 shadow-sm">
-               <h3 className="text-xl font-black uppercase flex items-center gap-2 text-[#E9535E]">
-                 <Mic2 /> Floor is yours
-               </h3>
-               <p className="font-bold opacity-60">
-                 {presenter?.name}, please explain your work to the group. Tell us about the inspiration for your entry: "{room?.selectedPrompt}".
-               </p>
-            </div>
+        {/* Title Card */}
+        <div className="bg-white py-3 px-10 rounded-sm shadow-xl mb-4">
+          <h2 className="text-3xl font-black uppercase tracking-tight" style={{ color: brandColor }}>
+            {solution?.name || 'Untitled'}
+          </h2>
+        </div>
 
-             <div className="space-y-4">
-                <h4 className="text-xs font-bold uppercase opacity-40 px-2 text-black">Next Authors</h4>
-                <div className="space-y-2">
-                   {players.map(p => (
-                     <div key={p.id} className={`p-3 rounded-2xl font-bold uppercase flex items-center gap-3 transition-all ${p.id === currentPresenterId ? 'bg-[#E9535E] text-white shadow-lg' : 'bg-white opacity-40 shadow-sm'}`}>
-                       <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
-                          <img src={CHARACTERS.find(c => c.id === p.avatar)?.src} className="w-6 h-6 object-contain" />
-                       </div>
-                       <span className="flex-1 truncate">{p.name}</span>
-                       {p.id === currentPresenterId && <span className="text-[10px] animate-pulse">LIVE</span>}
-                     </div>
-                   ))}
-                </div>
-             </div>
-
-            {isHost && (
-              <button
-                onClick={nextPresenter}
-                className="w-full flex items-center justify-center gap-3 bg-black text-white p-6 font-bold uppercase rounded-full hover:opacity-90 transition-all shadow-xl active:scale-95"
+        {/* Drawing Card */}
+        <div className="w-full aspect-[3/4] bg-white rounded-lg shadow-2xl overflow-hidden relative p-4 border-2 border-white">
+          <svg viewBox="0 0 340 450" className="w-full h-full">
+            {canvasData.lines.map((line: any, i: number) => (
+              <polyline
+                key={i}
+                points={line.points.join(',')}
+                fill="none"
+                stroke={line.tool === 'eraser' ? 'white' : (line.color || 'black')}
+                strokeWidth={line.tool === 'eraser' ? 30 : 5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{
+                  mixBlendMode: line.tool === 'eraser' ? 'destination-out' : 'normal'
+                } as any}
+              />
+            ))}
+            {canvasData.stickers.map((s: any) => (
+              <text
+                key={s.id}
+                x={s.x}
+                y={s.y + 40}
+                fontSize="60"
               >
-                <SkipForward />
-                {players.findIndex(p => p.id === currentPresenterId) === players.length - 1 ? 'Finish Readings' : 'Next Entry'}
-              </button>
-            )}
-         </div>
+                {s.emoji}
+              </text>
+            ))}
+          </svg>
+        </div>
+      </div>
+
+      {/* Progress Bar & Host Controls */}
+      <div className="mt-auto w-full max-w-md mx-auto space-y-6 pb-8">
+        <div className="w-full h-5 bg-white rounded-none p-0 overflow-hidden">
+          <div 
+            className="h-full transition-all duration-300"
+            style={{ 
+              width: '70%', 
+              backgroundColor: brandColor 
+            }}
+          />
+        </div>
+
+        {isHost && (
+          <button
+            onClick={nextPresenter}
+            className="w-full flex items-center justify-center gap-3 bg-black text-white p-4 font-bold uppercase rounded-xl hover:opacity-90 transition-all shadow-xl active:scale-95"
+          >
+            <SkipForward className="w-5 h-5" />
+            {players.findIndex(p => p.id === currentPresenterId) === players.length - 1 ? 'Finish Showcase' : 'Next Entry'}
+          </button>
+        )}
       </div>
     </div>
   );
