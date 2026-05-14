@@ -100,7 +100,7 @@ export function Landing() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-end p-8 bg-[#D9D9D9] overflow-hidden relative">
+      <div className="min-h-[100dvh] flex flex-col items-center justify-end p-4 md:p-8 bg-[#D9D9D9] overflow-hidden relative">
         <div className="absolute top-[-20%] right-[-20%] w-[140vw] aspect-square bg-white rounded-full -z-0" />
         
         <motion.div
@@ -126,7 +126,7 @@ export function Landing() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-end p-8 bg-[#DFDFDF] overflow-hidden relative">
+    <div className="min-h-[100dvh] flex flex-col items-center justify-end p-4 md:p-8 bg-[#DFDFDF] overflow-hidden relative">
       <div className="absolute top-[-20%] right-[-20%] w-[140vw] aspect-square bg-[#DFDFDF] rounded-full -z-0" />
 
       <motion.div
@@ -173,6 +173,10 @@ export function Landing() {
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
                 placeholder="####"
                 maxLength={4}
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck={false}
+                inputMode="text"
                 className="w-full bg-white border-none rounded-xl p-6 text-3xl font-bold uppercase focus:ring-2 focus:ring-black/5 outline-none shadow-sm text-center tracking-[0.5em]"
                 autoFocus
               />
@@ -206,6 +210,9 @@ export function Landing() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Daniel"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck={false}
                   className="w-full bg-white border-none rounded-none py-1 px-4 text-3xl font-black text-[#E9535E] outline-none shadow-none text-center placeholder:opacity-20"
                   autoFocus
                 />

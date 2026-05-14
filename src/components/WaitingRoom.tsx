@@ -37,7 +37,7 @@ export function WaitingRoom() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col p-8 bg-[#DFDFDF]">
+    <div className="min-h-[100dvh] flex flex-col p-4 md:p-8 bg-[#DFDFDF]">
       <div className="flex justify-between items-start mb-12">
         <div className="space-y-4">
           <button onClick={handleExit} className="flex items-center gap-2 font-black uppercase hover:opacity-60 transition-opacity">

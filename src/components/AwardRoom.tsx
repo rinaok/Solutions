@@ -57,7 +57,7 @@ export function AwardRoom() {
   const everyoneAwarded = players.every(p => p.status === 'awarded');
 
   return (
-    <div className="min-h-screen flex flex-col p-8 bg-[#DFDFDF]">
+    <div className="min-h-[100dvh] flex flex-col p-4 md:p-8 bg-[#DFDFDF]">
       <div className="mb-12">
         <h1 className="text-6xl font-black uppercase tracking-tighter mb-2">Peer Review</h1>
         <p className="text-xl font-bold uppercase opacity-60">Give a gold seal to your favorite entry.</p>

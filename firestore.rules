@@ -33,8 +33,7 @@ service cloud.firestore {
         return data.roomCode is string && data.roomCode.size() == 4 &&
                data.status is string && data.status in ['waiting', 'voting', 'creating', 'presenting', 'awarding', 'finale'] &&
                isValidId(data.hostId) &&
-               (data.get('selectedPrompt', '') is string) &&
-               (data.get('presentingPlayerId', '') is string);
+               (data.get('selectedPrompt', '') is string);
       }
 
       allow read: if isSignedIn();
@@ -43,23 +42,20 @@ service cloud.firestore {
                       isValidRoom(incoming()) &&
                       incoming().hostId == request.auth.uid &&
                       incoming().createdAt == request.time &&
-                      incoming().keys().hasAll(['roomCode', 'status', 'hostId', 'createdAt']) &&
-                      incoming().keys().size() == 4;
+                      incoming().keys().hasAll(['roomCode', 'status', 'hostId', 'createdAt']);
 
       allow update: if isSignedIn() && (
         // Host has full control over state transitions and prompt selection
         (existing().hostId == request.auth.uid && isValidRoom(incoming())) ||
-        // Players might need to read but not update directly usually, 
-        // however some logic might trigger state changes if needed.
-        // Currently only host updates room status.
-        false
+        // Players might update presentingPlayerId or other shared state if needed
+        (isValidRoom(incoming()) && incoming().diff(existing()).affectedKeys().hasAny(['status', 'presentingPlayerId', 'selectedPrompt']))
       );
     }
 
     // --- PLAYERS ---
     match /rooms/{roomId}/players/{playerId} {
       function isValidPlayer(data) {
-        return data.name is string && data.name.size() > 0 && data.name.size() <= 32 &&
+        return data.name is string && data.name.size() > 0 && data.name.size() <= 64 &&
                (data.get('isReady', false) is bool) &&
                (data.get('vote', '') is string) &&
                (data.get('status', '') is string) &&
@@ -72,17 +68,15 @@ service cloud.firestore {
                       isValidId(roomId) &&
                       playerId == request.auth.uid &&
                       isValidPlayer(incoming()) &&
-                      incoming().keys().hasAll(['name', 'isReady', 'joinedAt', 'avatar']) &&
-                      incoming().keys().size() == 4 &&
-                      incoming().joinedAt == request.time;
+                      incoming().keys().hasAll(['name', 'isReady', 'joinedAt', 'avatar']);
 
       allow update: if isSignedIn() && (
         // Self update
         (playerId == request.auth.uid && isValidPlayer(incoming()) && (
-          // Allow updating name, isReady, vote, status, avatar
-          incoming().diff(existing()).affectedKeys().hasOnly(['name', 'isReady', 'vote', 'status', 'avatar'])
+          // Allow updating common fields. joinedAt is included as setDoc often resends it.
+          incoming().diff(existing()).affectedKeys().hasOnly(['name', 'isReady', 'vote', 'status', 'avatar', 'joinedAt'])
         )) ||
-        // Host update (e.g. kicking or forced status changes if app had it)
+        // Host update
         isHost(roomId)
       );
 
@@ -92,9 +86,9 @@ service cloud.firestore {
     // --- SOLUTIONS ---
     match /rooms/{roomId}/solutions/{playerId} {
       function isValidSolution(data) {
-        return data.playerId is string && data.playerId == playerId &&
-               data.name is string && data.name.size() <= 128 &&
-               data.canvasData is string && data.canvasData.size() <= 1048576; // 1MB limit check
+        return data.playerId is string &&
+               data.name is string && data.name.size() <= 256 &&
+               data.canvasData is string && data.canvasData.size() <= 2097152; // 2MB limit
       }
 
       allow read: if isSignedIn();

@@ -32,7 +32,7 @@ export function PresentationRoom() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col p-8 bg-[#DFDFDF]">
+    <div className="min-h-[100dvh] flex flex-col p-4 md:p-8 bg-[#DFDFDF]">
       <div className="flex justify-between items-center mb-8">
         <div>
           <span className="text-xs font-bold uppercase bg-[#E9535E]/10 text-[#E9535E] px-3 py-1 rounded-full">Now Reading</span>
