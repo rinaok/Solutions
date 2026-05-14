@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useGame } from '../GameContext';
 import { db } from '../firebase';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles } from 'lucide-react';
 import { CHARACTERS } from '../constants';
@@ -88,7 +88,8 @@ export function VotingRoom() {
     try {
       await updateDoc(doc(db, 'rooms', room.id), {
         selectedPrompt: DEFAULT_PROMPTS[index],
-        status: 'creating'
+        status: 'creating',
+        timerStartedAt: serverTimestamp()
       });
     } catch (error) {
        handleFirestoreError(error, OperationType.UPDATE, `rooms/${room.id}`);

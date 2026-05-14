@@ -13,6 +13,7 @@
         "selectedPrompt": { "type": "string" },
         "prompts": { "type": "array", "items": { "type": "string" } },
         "presentingPlayerId": { "type": "string" },
+        "timerStartedAt": { "type": "string", "format": "date-time" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["roomCode", "status", "hostId", "createdAt"]

@@ -22,8 +22,16 @@ export function CreatorRoom() {
   const [name, setName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isDone, setIsDone] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(60);
   const isDrawing = useRef(false);
   const stageRef = useRef<any>(null);
+  const nameRef = useRef(name);
+  const linesRef = useRef(lines);
+  const stickersRef = useRef(stickers);
+
+  useEffect(() => { nameRef.current = name; }, [name]);
+  useEffect(() => { linesRef.current = lines; }, [lines]);
+  useEffect(() => { stickersRef.current = stickers; }, [stickers]);
 
   const handleMouseDown = (e: any) => {
     if (isDone) return;
@@ -67,15 +75,16 @@ export function CreatorRoom() {
     setStickers([...stickers, { emoji, x, y, id: Date.now().toString() }]);
   };
 
-  const handleSave = async () => {
-    if (!user || !room || !name) return;
+  const handleSave = async (forcedName?: string) => {
+    const finalName = forcedName || nameRef.current;
+    if (!user || !room || !finalName) return;
     setIsSaving(true);
     
     try {
       await setDoc(doc(db, 'rooms', room.id, 'solutions', user.uid), {
         playerId: user.uid,
-        name,
-        canvasData: JSON.stringify({ lines, stickers }),
+        name: finalName,
+        canvasData: JSON.stringify({ lines: linesRef.current, stickers: stickersRef.current }),
         createdAt: serverTimestamp()
       });
 
@@ -91,6 +100,24 @@ export function CreatorRoom() {
     }
   };
 
+  useEffect(() => {
+    if (!room?.timerStartedAt) return;
+    
+    const interval = setInterval(() => {
+      const startedAt = room.timerStartedAt.toDate ? room.timerStartedAt.toDate().getTime() : new Date(room.timerStartedAt).getTime();
+      const elapsed = (Date.now() - startedAt) / 1000;
+      const remaining = Math.max(0, 60 - elapsed);
+      setTimeLeft(remaining);
+      
+      if (remaining <= 0 && !isSaving && !isDone) {
+        handleSave(nameRef.current || "UNNAMED SOLUTION");
+        clearInterval(interval);
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [room?.timerStartedAt, isDone, isSaving]);
+
   const everyoneReady = players.every(p => p.isReady);
 
   useEffect(() => {
@@ -99,54 +126,13 @@ export function CreatorRoom() {
         await new Promise(r => setTimeout(r, 2000));
         await updateDoc(doc(db, 'rooms', room.id), {
           status: 'presenting',
-          presentingPlayerId: players[0].id
+          presentingPlayerId: players[0].id,
+          timerStartedAt: serverTimestamp()
         });
       };
       waitAndMove();
     }
   }, [everyoneReady, room?.id, room?.hostId, user?.uid, room?.status, players]);
-
-  if (phase === 'naming') {
-    return (
-      <div className="h-full flex flex-col items-center justify-center p-4 md:p-8 bg-[#DFDFDF] overflow-hidden">
-        <motion.div 
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="max-w-md w-full space-y-12 text-center"
-        >
-          <h1 className="text-[30px] leading-[74px] mb-5 font-black uppercase tracking-tighter italic text-[#333] text-center">
-            {room?.selectedPrompt}
-          </h1>
-          
-          <div className="space-y-6">
-             <p className="text-[#A1A1A1] font-bold uppercase tracking-tight text-sm">
-               Name your great solution
-             </p>
-             <div className="bg-white rounded-lg shadow-sm border-2 border-white">
-                <input 
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value.toUpperCase())}
-                  placeholder="Solution name"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  className="w-full p-4 text-3xl font-black text-[#ED5F69] text-center placeholder:text-[#ED5F69]/40 outline-none"
-                />
-             </div>
-          </div>
-          
-          <button
-            onClick={() => name && setPhase('sketching')}
-            disabled={!name}
-            className="bg-[#ED5F69] text-white px-16 py-4 text-3xl font-black uppercase rounded-lg shadow-xl hover:brightness-105 active:scale-95 transition-all disabled:opacity-50"
-          >
-            Ready!
-          </button>
-        </motion.div>
-      </div>
-    );
-  }
 
   if (isDone) {
     return (
@@ -154,7 +140,12 @@ export function CreatorRoom() {
         {/* Progress Bar Header */}
         <div className="w-full h-8 bg-white p-2">
           <div className="h-full bg-[#ED5F69]/20 rounded-full overflow-hidden">
-            <div className="h-full bg-[#ED5F69] w-[70%]" />
+            <motion.div 
+              className="h-full bg-[#ED5F69]" 
+              initial={{ width: '100%' }}
+              animate={{ width: `${(timeLeft / 60) * 100}%` }}
+              transition={{ ease: 'linear' }}
+            />
           </div>
         </div>
 
@@ -203,12 +194,73 @@ export function CreatorRoom() {
     );
   }
 
+  if (phase === 'naming') {
+    return (
+      <div className="h-full flex flex-col bg-[#DFDFDF] overflow-hidden">
+        {/* Progress Bar Header */}
+        <div className="w-full h-8 bg-white p-2">
+          <div className="h-full bg-[#ED5F69]/20 rounded-full overflow-hidden">
+            <motion.div 
+              className="h-full bg-[#ED5F69]" 
+              initial={{ width: '100%' }}
+              animate={{ width: `${(timeLeft / 60) * 100}%` }}
+              transition={{ ease: 'linear' }}
+            />
+          </div>
+        </div>
+
+        <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8">
+          <motion.div 
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="max-w-md w-full space-y-12 text-center"
+          >
+            <h1 className="text-[30px] leading-[74px] mb-5 font-black uppercase tracking-tighter italic text-[#333] text-center">
+              {room?.selectedPrompt}
+            </h1>
+            
+            <div className="space-y-6">
+               <p className="text-[#A1A1A1] font-bold uppercase tracking-tight text-sm">
+                 Name your great solution
+               </p>
+               <div className="bg-white rounded-lg shadow-sm border-2 border-white">
+                  <input 
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value.toUpperCase())}
+                    placeholder="Solution name"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    className="w-full p-4 text-3xl font-black text-[#ED5F69] text-center placeholder:text-[#ED5F69]/40 outline-none"
+                  />
+               </div>
+            </div>
+            
+            <button
+              onClick={() => name && setPhase('sketching')}
+              disabled={!name}
+              className="bg-[#ED5F69] text-white px-16 py-4 text-3xl font-black uppercase rounded-lg shadow-xl hover:brightness-105 active:scale-95 transition-all disabled:opacity-50"
+            >
+              Ready!
+            </button>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-full flex flex-col bg-[#DFDFDF] overflow-hidden">
       {/* Progress Bar Header */}
       <div className="w-full h-8 bg-white p-2">
         <div className="h-full bg-[#ED5F69]/20 rounded-full overflow-hidden">
-          <div className="h-full bg-[#ED5F69] w-[70%]" />
+          <motion.div 
+            className="h-full bg-[#ED5F69]" 
+            initial={{ width: '100%' }}
+            animate={{ width: `${(timeLeft / 60) * 100}%` }}
+            transition={{ ease: 'linear' }}
+          />
         </div>
       </div>
 
@@ -360,7 +412,7 @@ export function CreatorRoom() {
         {!isDone && (
           <div className="mt-auto pb-8 w-full flex justify-center">
             <button
-              onClick={handleSave}
+              onClick={() => handleSave()}
               disabled={isSaving || lines.length === 0}
               className="bg-[#ED5F69] text-white px-12 py-3 text-2xl font-black uppercase rounded-lg shadow-xl hover:brightness-105 active:scale-95 transition-all disabled:opacity-50"
             >

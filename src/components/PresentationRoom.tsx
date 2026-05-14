@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGame } from '../GameContext';
 import { db } from '../firebase';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { motion } from 'motion/react';
 import { Play, SkipForward, Mic2, Megaphone } from 'lucide-react';
 import { handleFirestoreError, OperationType } from '../errorHandlers';
@@ -15,8 +15,27 @@ export function PresentationRoom() {
   const solution = solutions.find(s => s.playerId === currentPresenterId);
   const character = CHARACTERS.find(c => c.id === presenter?.avatar);
   const brandColor = character?.color.replace('bg-[', '').replace(']', '') || '#ED5F69';
+  const [timeLeft, setTimeLeft] = useState(10);
 
   const canvasData = solution ? JSON.parse(solution.canvasData) : { lines: [], stickers: [] };
+
+  useEffect(() => {
+    if (!room?.timerStartedAt) return;
+    
+    const interval = setInterval(() => {
+      const startedAt = room.timerStartedAt.toDate ? room.timerStartedAt.toDate().getTime() : new Date(room.timerStartedAt).getTime();
+      const elapsed = (Date.now() - startedAt) / 1000;
+      const remaining = Math.max(0, 10 - elapsed);
+      setTimeLeft(remaining);
+      
+      if (remaining <= 0 && isHost) {
+        nextPresenter();
+        clearInterval(interval);
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [room?.timerStartedAt, currentPresenterId, isHost]);
 
   const nextPresenter = async () => {
     if (!room) return;
@@ -24,7 +43,8 @@ export function PresentationRoom() {
     if (currentIndex < players.length - 1) {
       const nextId = players[currentIndex + 1].id;
       await updateDoc(doc(db, 'rooms', room.id), {
-        presentingPlayerId: nextId
+        presentingPlayerId: nextId,
+        timerStartedAt: serverTimestamp()
       });
     } else {
       await updateDoc(doc(db, 'rooms', room.id), {
@@ -91,23 +111,27 @@ export function PresentationRoom() {
       {/* Progress Bar & Host Controls */}
       <div className="mt-auto w-full max-w-md mx-auto space-y-6 pb-8">
         <div className="w-full h-5 bg-white rounded-none p-0 overflow-hidden">
-          <div 
-            className="h-full transition-all duration-300"
+          <motion.div 
+            className="h-full"
+            initial={{ width: '100%' }}
+            animate={{ width: `${(timeLeft / 10) * 100}%` }}
+            transition={{ ease: 'linear' }}
             style={{ 
-              width: '70%', 
               backgroundColor: brandColor 
             }}
           />
         </div>
 
         {isHost && (
-          <button
-            onClick={nextPresenter}
-            className="w-full flex items-center justify-center gap-3 bg-black text-white p-4 font-bold uppercase rounded-xl hover:opacity-90 transition-all shadow-xl active:scale-95"
-          >
-            <SkipForward className="w-5 h-5" />
-            {players.findIndex(p => p.id === currentPresenterId) === players.length - 1 ? 'Finish Showcase' : 'Next Entry'}
-          </button>
+          <div className="flex justify-center">
+            <button
+              onClick={nextPresenter}
+              style={{ backgroundColor: brandColor }}
+              className="text-white px-12 py-3 text-2xl font-black uppercase rounded-lg shadow-xl hover:brightness-105 active:scale-95 transition-all"
+            >
+              {players.findIndex(p => p.id === currentPresenterId) === players.length - 1 ? 'Finish' : 'Next'}
+            </button>
+          </div>
         )}
       </div>
     </div>
