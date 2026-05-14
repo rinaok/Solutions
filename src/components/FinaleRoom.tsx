@@ -18,7 +18,7 @@ export function FinaleRoom() {
   }, []);
 
   return (
-    <div className="min-h-[100dvh] flex flex-col p-4 md:p-8 bg-[#DFDFDF] overflow-y-auto">
+    <div className="h-full flex flex-col p-4 md:p-8 bg-[#DFDFDF] overflow-y-auto">
       <div className="text-center mb-16 space-y-6">
         <h1 className="text-9xl font-black uppercase tracking-tighter leading-none italic">
           FINISHED<br />WORKS

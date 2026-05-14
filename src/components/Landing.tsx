@@ -100,7 +100,7 @@ export function Landing() {
 
   if (!user) {
     return (
-      <div className="min-h-[100dvh] flex flex-col items-center justify-end p-4 md:p-8 bg-[#D9D9D9] overflow-hidden relative">
+      <div className="h-full flex flex-col items-center justify-end p-4 md:p-8 bg-[#D9D9D9] overflow-hidden relative">
         <div className="absolute top-[-20%] right-[-20%] w-[140vw] aspect-square bg-white rounded-full -z-0" />
         
         <motion.div
@@ -126,7 +126,7 @@ export function Landing() {
   }
 
   return (
-    <div className="min-h-[100dvh] flex flex-col items-center justify-end p-4 md:p-8 bg-[#DFDFDF] overflow-hidden relative">
+    <div className="h-full flex flex-col items-center justify-end p-4 md:p-8 bg-[#DFDFDF] overflow-hidden relative">
       <div className="absolute top-[-20%] right-[-20%] w-[140vw] aspect-square bg-[#DFDFDF] rounded-full -z-0" />
 
       <motion.div

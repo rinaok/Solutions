@@ -116,7 +116,7 @@ export function VotingRoom() {
   };
 
   return (
-    <div className="min-h-[100dvh] flex flex-col items-center justify-between p-4 md:p-8 bg-[#DFDFDF] overflow-hidden">
+    <div className="h-full flex flex-col items-center justify-between p-4 md:p-8 bg-[#DFDFDF] overflow-hidden">
       <div className="pt-6 md:pt-12">
         <h2 className="text-[#A1A1A1] text-2xl font-black uppercase text-center tracking-tighter">
           Swipe to see all

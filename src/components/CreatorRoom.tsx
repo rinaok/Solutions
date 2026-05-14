@@ -27,6 +27,13 @@ export function CreatorRoom() {
 
   const handleMouseDown = (e: any) => {
     if (isDone) return;
+    
+    // If we clicked on an object (not the stage background), don't start drawing
+    // In Konva, e.target is the specific node clicked
+    if (e.target !== e.target.getStage()) {
+      return;
+    }
+
     isDrawing.current = true;
     const stage = e.target.getStage();
     const pos = stage.getPointerPosition();
@@ -54,8 +61,9 @@ export function CreatorRoom() {
 
   const addSticker = (emoji: string) => {
     if (isDone) return;
-    const x = Math.random() * 400 + 100;
-    const y = Math.random() * 300 + 100;
+    // Center it roughly on 340x450 canvas
+    const x = 140;
+    const y = 200;
     setStickers([...stickers, { emoji, x, y, id: Date.now().toString() }]);
   };
 
@@ -100,7 +108,7 @@ export function CreatorRoom() {
 
   if (phase === 'naming') {
     return (
-      <div className="min-h-[100dvh] flex flex-col items-center justify-center p-4 md:p-8 bg-[#DFDFDF] overflow-hidden">
+      <div className="h-full flex flex-col items-center justify-center p-4 md:p-8 bg-[#DFDFDF] overflow-hidden">
         <motion.div 
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -140,8 +148,63 @@ export function CreatorRoom() {
     );
   }
 
+  if (isDone) {
+    return (
+      <div className="h-full flex flex-col bg-[#DFDFDF] overflow-hidden">
+        {/* Progress Bar Header */}
+        <div className="w-full h-8 bg-white p-2">
+          <div className="h-full bg-[#ED5F69]/20 rounded-full overflow-hidden">
+            <div className="h-full bg-[#ED5F69] w-[70%]" />
+          </div>
+        </div>
+
+        <div className="flex-1 flex flex-col items-center p-8 space-y-12">
+          <h2 className="text-[#A1A1A1] text-xl font-black uppercase text-center max-w-[280px] leading-tight">
+            Waiting for everyone to submit their solution
+          </h2>
+
+          <div className="relative w-full max-w-sm aspect-square">
+            {players.map((p, i) => {
+              // Create a organic cluster layout
+              const angles = [0, 45, 135, 210, 275, 330];
+              const angle = angles[i % angles.length] * (Math.PI / 180);
+              const radius = 100 + (i * 10);
+              const x = Math.cos(angle) * radius;
+              const y = Math.sin(angle) * radius;
+
+              return (
+                <motion.div
+                  key={p.id}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: i * 0.1 }}
+                  style={{ 
+                    left: `calc(50% + ${x}px)`, 
+                    top: `calc(50% + ${y}px)`,
+                    transform: 'translate(-50%, -50%)' 
+                  }}
+                  className="absolute flex flex-col items-center gap-2"
+                >
+                  <div className={`w-24 h-24 rounded-full bg-white flex items-center justify-center shadow-xl border-4 ${p.isReady ? 'border-white' : 'border-transparent opacity-30 shadow-none'}`}>
+                    <img 
+                      src={CHARACTERS.find(c => c.id === p.avatar)?.src} 
+                      className={`w-16 h-16 object-contain ${!p.isReady && 'grayscale'}`} 
+                    />
+                  </div>
+                  <span className={`font-black uppercase text-sm ${p.isReady ? 'text-[#ED5F69]' : 'text-[#A1A1A1]'}`}>
+                    {p.name}
+                  </span>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-[#DFDFDF] overflow-hidden">
+    <div className="h-full flex flex-col bg-[#DFDFDF] overflow-hidden">
       {/* Progress Bar Header */}
       <div className="w-full h-8 bg-white p-2">
         <div className="h-full bg-[#ED5F69]/20 rounded-full overflow-hidden">
@@ -188,7 +251,27 @@ export function CreatorRoom() {
           </div>
 
           {/* Canvas Card */}
-          <div className="flex-1 max-w-[340px] aspect-[3/4] bg-white rounded-lg shadow-2xl overflow-hidden touch-none relative p-2 border-2 border-white">
+          <div 
+            className="flex-1 max-w-[340px] aspect-[3/4] bg-white rounded-lg shadow-2xl overflow-hidden touch-none relative p-2 border-2 border-white"
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              stageRef.current.setPointersPositions(e);
+              const emoji = e.dataTransfer.getData('emoji');
+              if (emoji) {
+                const pos = stageRef.current.getPointerPosition();
+                setStickers([
+                  ...stickers,
+                  {
+                    x: pos.x - 30, // Offset for font size
+                    y: pos.y - 30,
+                    emoji,
+                    id: Date.now().toString()
+                  },
+                ]);
+              }
+            }}
+          >
             <Stage
               width={340}
               height={450}
@@ -225,7 +308,17 @@ export function CreatorRoom() {
                     y={s.y}
                     fontSize={60}
                     draggable={!isDone}
+                    onMouseEnter={(e) => {
+                      const container = e.target.getStage()?.container();
+                      if (container) container.style.cursor = 'pointer';
+                    }}
+                    onMouseLeave={(e) => {
+                      const container = e.target.getStage()?.container();
+                      if (container) container.style.cursor = 'default';
+                    }}
                     onDragEnd={(e) => {
+                      const container = e.target.getStage()?.container();
+                      if (container) container.style.cursor = 'default';
                       const newStickers = stickers.slice();
                       newStickers[i] = { ...s, x: e.target.x(), y: e.target.y() };
                       setStickers(newStickers);
@@ -251,7 +344,11 @@ export function CreatorRoom() {
                <button 
                  key={s} 
                  onClick={() => addSticker(s)}
-                 className="p-1 text-4xl hover:scale-110 active:scale-125 transition-transform"
+                 draggable
+                 onDragStart={(e) => {
+                   e.dataTransfer.setData('emoji', s);
+                 }}
+                 className="p-1 text-4xl hover:scale-110 active:scale-125 transition-transform cursor-grab active:cursor-grabbing"
                >
                  {s}
                </button>
