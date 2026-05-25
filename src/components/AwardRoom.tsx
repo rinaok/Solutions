@@ -19,19 +19,21 @@ const PRIZES = [
 export function AwardRoom() {
   const { room, players, solutions, user } = useGame();
   const [selectedSolution, setSelectedSolution] = useState<string | null>(null);
-  const [selectedPrize, setSelectedPrize] = useState<any | null>(null);
   const [isAwarded, setIsAwarded] = useState(false);
   const isHost = room?.hostId === user?.uid;
 
-  const handleAward = async () => {
-    if (!user || !room || !selectedSolution || !selectedPrize) return;
+  const currentPrize = PRIZES[0]; // For now, focus on one flagship reward
+
+  const handleAward = async (solutionId: string) => {
+    if (!user || !room) return;
+    setSelectedSolution(solutionId);
     
     try {
       // Award the solution
-      await updateDoc(doc(db, 'rooms', room.id, 'solutions', selectedSolution), {
+      await updateDoc(doc(db, 'rooms', room.id, 'solutions', solutionId), {
         prize: {
-          id: selectedPrize.id,
-          name: selectedPrize.name,
+          id: currentPrize.id,
+          name: currentPrize.name,
           from: user.displayName || 'Researcher'
         }
       });
@@ -43,7 +45,7 @@ export function AwardRoom() {
 
       setIsAwarded(true);
     } catch (error) {
-      console.error(error);
+       handleFirestoreError(error, OperationType.WRITE, `rooms/${room.id}/solutions/${solutionId}`);
     }
   };
 
@@ -56,117 +58,87 @@ export function AwardRoom() {
 
   const everyoneAwarded = players.every(p => p.status === 'awarded');
 
-  return (
-    <div className="h-full flex flex-col p-4 md:p-8 bg-[#DFDFDF] overflow-y-auto">
-      <div className="mb-12">
-        <h1 className="text-6xl font-black uppercase tracking-tighter mb-2">Peer Review</h1>
-        <p className="text-xl font-bold uppercase opacity-60">Give a gold seal to your favorite entry.</p>
-      </div>
+  if (isAwarded) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center bg-[#DFDFDF] p-8 space-y-12">
+        <div className="w-64 h-64 bg-white rounded-full flex items-center justify-center shadow-2xl">
+          <Trophy className="w-40 h-40 text-[#ED5F69]" />
+        </div>
+        
+        <div className="text-center space-y-2">
+          <h2 className="text-[#ED5F69] text-3xl font-black uppercase tracking-tight">Reward given!</h2>
+          <p className="text-[#A1A1A1] font-black uppercase text-sm">Waiting for other players...</p>
+        </div>
 
-      {!isAwarded ? (
-        <div className="flex-1 flex flex-col lg:flex-row gap-12">
-          <div className="flex-1 space-y-6">
-            <h3 className="text-2xl font-black uppercase text-[#E9535E]">1. Best Entry</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {solutions.filter(s => s.playerId !== user?.uid).map(s => (
-                <div 
-                  key={s.id}
-                  onClick={() => setSelectedSolution(s.id)}
-                  className={`cursor-pointer p-6 rounded-[32px] transition-all relative overflow-hidden flex items-center gap-4 ${
-                    selectedSolution === s.id ? 'bg-[#E9535E] text-white shadow-xl translate-y-[-4px]' : 'bg-white hover:bg-[#E4E3E0] shadow-sm'
-                  }`}
-                >
-                  <div className="w-12 h-12 rounded-2xl bg-[#DFDFDF] flex items-center justify-center p-1 shadow-inner">
-                    <img src={CHARACTERS.find(c => c.id === players.find(p => p.id === s.playerId)?.avatar)?.src} className="w-10 h-10 object-contain" />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-black uppercase">{s.name}</div>
-                    <div className={`text-sm font-bold uppercase opacity-60 ${selectedSolution === s.id ? 'text-white' : 'text-black'}`}>By {players.find(p => p.id === s.playerId)?.name}</div>
-                  </div>
+        <div className="flex justify-center gap-4 flex-wrap max-w-sm">
+          {players.map(p => (
+            <div key={p.id} className="relative">
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center overflow-hidden transition-all bg-white shadow-lg border-4 ${p.status === 'awarded' ? 'border-[#ED5F69]' : 'border-transparent opacity-30'}`}>
+                <img src={CHARACTERS.find(c => c.id === p.avatar)?.src} className="w-10 h-10 object-contain" />
+              </div>
+              {p.status === 'awarded' && (
+                <div className="absolute -top-1 -right-1 bg-[#ED5F69] rounded-full p-1 border-2 border-white">
+                  <Star className="w-3 h-3 text-white fill-current" />
                 </div>
-              ))}
+              )}
             </div>
-          </div>
+          ))}
+        </div>
 
-          <div className="flex-1 space-y-6">
-             <h3 className="text-2xl font-black uppercase text-[#E9535E]">2. Select Seal</h3>
-             <div className="grid grid-cols-2 gap-4">
-               {PRIZES.map(prize => (
-                 <div 
-                   key={prize.id}
-                   onClick={() => setSelectedPrize(prize)}
-                   className={`cursor-pointer p-6 rounded-[32px] flex items-center gap-4 transition-all relative overflow-hidden ${
-                     selectedPrize?.id === prize.id ? 'bg-[#E9535E] text-white shadow-xl translate-y-[-4px]' : 'bg-white hover:bg-[#E4E3E0] shadow-sm'
-                   }`}
-                 >
-                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white shadow-sm">
-                     {prize.icon}
-                   </div>
-                   <div className="text-xl font-black uppercase leading-tight">{prize.name}</div>
-                 </div>
-               ))}
+        {isHost && everyoneAwarded && (
+          <button
+            onClick={finishAwards}
+            className="bg-black text-white px-12 py-4 text-2xl font-black uppercase rounded-lg shadow-xl hover:brightness-105 active:scale-95 transition-all mt-8"
+          >
+            Go to Finale
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full flex flex-col bg-[#DFDFDF] overflow-hidden">
+      <div className="flex-1 flex flex-col items-center p-8 space-y-8 overflow-y-auto">
+        {/* Trophy Illustration */}
+        <div className="relative">
+          <div className="w-56 h-56 bg-white rounded-full flex items-center justify-center shadow-2xl relative z-0">
+             <Trophy className="w-32 h-32 text-amber-400" />
+             <div className="absolute top-0 right-0 translate-x-4 -translate-y-4">
+                <div className="w-16 h-16 bg-white rounded-full p-2 shadow-lg flex items-center justify-center transform rotate-12">
+                   <Zap className="w-8 h-8 text-yellow-500 fill-current" />
+                </div>
              </div>
           </div>
+        </div>
 
-          <div className="w-full lg:w-72 space-y-8 flex flex-col justify-end">
-             <button
-               onClick={handleAward}
-               disabled={!selectedSolution || !selectedPrize}
-               className="w-full bg-black text-white p-8 font-bold uppercase rounded-full hover:opacity-90 transition-all disabled:opacity-20 shadow-xl"
-             >
-               Apply Seal
-             </button>
-          </div>
+        {/* Reward Title */}
+        <div className="text-center">
+          <h1 className="text-[#ED5F69] text-3xl font-black uppercase leading-tight max-w-[200px] mx-auto">
+            The Most creative reward
+          </h1>
         </div>
-      ) : (
-        <div className="flex-1 flex flex-col items-center justify-center space-y-8">
-           <div className="bg-white p-16 text-center rounded-[60px] shadow-2xl space-y-8 max-w-2xl w-full border-4 border-white">
-              <div className="w-32 h-32 bg-[#E9535E]/10 rounded-full flex items-center justify-center mx-auto">
-                <Gift className="w-16 h-16 text-[#E9535E]" />
-              </div>
-              <div className="space-y-4">
-                <h2 className="text-5xl font-black uppercase text-[#E9535E]">Seal Applied</h2>
-                <p className="text-xl font-bold uppercase opacity-60">Waiting for other writers to finish their reviews...</p>
-              </div>
-              
-              <div className="flex justify-center gap-4">
-                {players.map(p => (
-                  <div key={p.id} className="relative">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden transition-all ${p.status === 'awarded' ? 'ring-4 ring-[#E9535E] bg-white' : 'bg-black/10 opacity-30'}`}>
-                       <img src={CHARACTERS.find(c => c.id === p.avatar)?.src} className="w-8 h-8 object-contain" />
-                    </div>
-                    {p.status === 'awarded' && (
-                       <Star className="w-5 h-5 text-[#E9535E] fill-[#E9535E] absolute -top-1 -right-1" />
-                    )}
-                  </div>
-                ))}
-              </div>
-           </div>
-        </div>
-      )}
 
-      {isHost && everyoneAwarded && !isAwarded && (
-        <div className="mt-12 flex justify-end">
-           <button
-             onClick={finishAwards}
-             className="bg-[#E9535E] text-white px-12 py-4 font-bold uppercase rounded-full shadow-xl hover:opacity-90 transition-all active:scale-95"
-           >
-             Finish Notebook
-           </button>
+        {/* Subtitle */}
+        <div className="text-center">
+          <p className="text-[#ED5F69]/60 text-sm font-black uppercase">
+            Pick who to give the Creative reward
+          </p>
         </div>
-      )}
-      
-      {isHost && isAwarded && (
-        <div className="mt-12 flex justify-end">
-           <button
-             onClick={finishAwards}
-             disabled={!everyoneAwarded}
-             className="bg-black text-white px-12 py-4 font-bold uppercase rounded-full shadow-xl hover:opacity-90 transition-all disabled:opacity-30 active:scale-95"
-           >
-             Go to Finale
-           </button>
+
+        {/* Solution Buttons */}
+        <div className="w-full max-w-sm space-y-3 pb-8">
+          {solutions.filter(s => s.playerId !== user?.uid).map(s => (
+            <button
+              key={s.id}
+              onClick={() => handleAward(s.id)}
+              className="w-full bg-white py-4 px-6 rounded-sm shadow-xl text-2xl font-black uppercase text-[#333] hover:brightness-95 active:scale-[0.98] transition-all text-center"
+            >
+              {s.name}
+            </button>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 }

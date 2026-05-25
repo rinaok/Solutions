@@ -15,7 +15,7 @@ export function PresentationRoom() {
   const solution = solutions.find(s => s.playerId === currentPresenterId);
   const character = CHARACTERS.find(c => c.id === presenter?.avatar);
   const brandColor = character?.color.replace('bg-[', '').replace(']', '') || '#ED5F69';
-  const [timeLeft, setTimeLeft] = useState(10);
+  const [timeLeft, setTimeLeft] = useState(120);
 
   const canvasData = solution ? JSON.parse(solution.canvasData) : { lines: [], stickers: [] };
 
@@ -25,7 +25,7 @@ export function PresentationRoom() {
     const interval = setInterval(() => {
       const startedAt = room.timerStartedAt.toDate ? room.timerStartedAt.toDate().getTime() : new Date(room.timerStartedAt).getTime();
       const elapsed = (Date.now() - startedAt) / 1000;
-      const remaining = Math.max(0, 10 - elapsed);
+      const remaining = Math.max(0, 120 - elapsed);
       setTimeLeft(remaining);
       
       if (remaining <= 0 && isHost) {
@@ -114,7 +114,7 @@ export function PresentationRoom() {
           <motion.div 
             className="h-full"
             initial={{ width: '100%' }}
-            animate={{ width: `${(timeLeft / 10) * 100}%` }}
+            animate={{ width: `${(timeLeft / 120) * 100}%` }}
             transition={{ ease: 'linear' }}
             style={{ 
               backgroundColor: brandColor 
