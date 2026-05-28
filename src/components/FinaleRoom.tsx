@@ -18,92 +18,104 @@ export function FinaleRoom() {
   }, []);
 
   return (
-    <div className="h-full flex flex-col p-4 md:p-8 bg-[#DFDFDF] overflow-y-auto">
-      <div className="text-center mb-16 space-y-6">
-        <h1 className="text-9xl font-black uppercase tracking-tighter leading-none italic">
-          FINISHED<br />WORKS
-        </h1>
-        <p className="text-3xl font-bold uppercase tracking-widest text-[#E9535E]">
-          The Shared Sketchbook
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-12 mb-20">
-        {solutions.map((sol, i) => {
+    <div className="h-full flex flex-col items-center bg-[#DFDFDF] overflow-y-auto relative p-8">
+      <div className="flex-1 w-full max-w-sm flex flex-col pt-12 pb-24">
+        {solutions.filter(s => s.prize).map((sol, i) => {
           const player = players.find(p => p.id === sol.playerId);
           const canvasData = JSON.parse(sol.canvasData);
+          const character = CHARACTERS.find(c => c.id === player?.avatar);
           
           return (
             <motion.div
               key={sol.id}
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: i * 0.2 }}
-              className="bg-white rounded-[40px] flex flex-col group hover:-translate-y-2 transition-all shadow-xl overflow-hidden border-4 border-white"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.3 }}
+              className="flex flex-col relative mb-12"
             >
-              <div className="p-4 border-b border-black/5 flex justify-between items-center bg-white">
-                <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 rounded-full bg-[#DFDFDF] flex items-center justify-center p-1 shadow-inner">
-                      <img src={CHARACTERS.find(c => c.id === player?.avatar)?.src} className="w-8 h-8 object-contain" />
-                   </div>
-                   <div>
-                      <div className="font-black text-xl uppercase truncate">{sol.name}</div>
-                      <div className="text-[10px] font-bold uppercase opacity-40">By {player?.name}</div>
+              {/* Player Avatar Header */}
+              <div className="flex flex-col items-center self-start mb-6 -ml-4">
+                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg border-4 border-white overflow-hidden relative z-10">
+                   <img src={character?.src} className="w-12 h-12 object-contain" />
+                </div>
+                <span className="text-[#8E8E8E] font-black uppercase text-xs mt-1">{player?.name}</span>
+              </div>
+
+              {/* Drawing Card */}
+              <div className="relative">
+                <div className="bg-white rounded-sm shadow-2xl p-4 aspect-[3/4] flex flex-col border-2 border-white overflow-hidden">
+                  <svg viewBox="0 0 340 450" className="w-full h-full">
+                    {canvasData.lines.map((line: any, j: number) => (
+                      <polyline
+                        key={j}
+                        points={line.points.join(',')}
+                        fill="none"
+                        stroke={line.tool === 'eraser' ? 'white' : 'black'}
+                        strokeWidth={line.tool === 'eraser' ? 30 : 4}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    ))}
+                    {canvasData.stickers.map((s: any) => (
+                      <text
+                        key={s.id}
+                        x={s.x}
+                        y={s.y + 40}
+                        fontSize="60"
+                      >
+                        {s.emoji}
+                      </text>
+                    ))}
+                  </svg>
+                </div>
+
+                {/* Trophy Reward Overlay */}
+                <div className="absolute -top-12 -right-8 z-20">
+                   <div className="relative">
+                      <div className="w-24 h-24 flex items-center justify-center transform scale-150">
+                         <div className="relative">
+                            {/* Brushes peaking out */}
+                            <div className="absolute -top-10 left-4 w-4 h-16 bg-[#F4A7C1] rounded-full border-2 border-white transform rotate-[15deg] shadow-sm" />
+                            <div className="absolute -top-12 left-8 w-4 h-18 bg-[#E9535E] rounded-full border-2 border-white transform rotate-[35deg] shadow-sm" />
+                            
+                            {/* The Trophy */}
+                            <div className="relative z-10">
+                               <Trophy className="w-20 h-20 text-[#D4AF37] fill-[#FFD700]" />
+                            </div>
+                         </div>
+                      </div>
                    </div>
                 </div>
               </div>
-              
-              <div className="flex-1 aspect-[4/3] relative bg-white overflow-hidden p-6">
-                <svg viewBox="0 0 800 600" className="w-full h-full opacity-30 group-hover:opacity-100 transition-opacity">
-                  {canvasData.lines.map((line: any, j: number) => (
-                    <polyline
-                      key={j}
-                      points={line.points.join(',')}
-                      fill="none"
-                      stroke={line.tool === 'eraser' ? 'white' : 'black'}
-                      strokeWidth={line.tool === 'eraser' ? 20 : 3}
-                      strokeLinecap="round"
-                    />
-                  ))}
-                  {canvasData.stickers.map((s: any) => (
-                    <text
-                      key={s.id}
-                      x={s.x}
-                      y={s.y + 40}
-                      fontSize="50"
-                    >
-                      {s.emoji}
-                    </text>
-                  ))}
-                </svg>
 
-                {sol.prize && (
-                  <motion.div 
-                    initial={{ scale: 0, rotate: -20 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ delay: i * 0.2 + 0.5, type: 'spring' }}
-                    className="absolute bottom-6 right-6 bg-white p-4 rounded-2xl shadow-xl z-20 flex flex-col items-center border-2 border-black/5"
-                  >
-                    <div className="text-3xl mb-1">🌟</div>
-                    <div className="text-[10px] font-black uppercase text-center leading-tight max-w-[80px] text-[#E9535E]">
-                      {sol.prize.name}
-                    </div>
-                  </motion.div>
-                )}
+              {/* Solution Name Tag */}
+              <div className="bg-white py-3 px-10 rounded-sm shadow-xl mt-4 self-center min-w-[240px] text-center border-b-4 border-[#E9535E]/20">
+                <h3 className="text-[#E9535E] text-2xl font-black uppercase tracking-tight">
+                  {sol.name}
+                </h3>
               </div>
             </motion.div>
           );
         })}
+
+        {/* New Game Button sitting under the winner content */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="mt-8 self-start"
+        >
+          <button
+            onClick={leaveRoom}
+            className="bg-white text-[#333] px-8 py-3 text-2xl font-black uppercase rounded-sm shadow-xl hover:brightness-95 active:scale-95 transition-all"
+          >
+            New Game
+          </button>
+        </motion.div>
       </div>
 
-      <div className="mt-auto flex justify-center pb-12">
-        <button
-          onClick={leaveRoom}
-          className="group flex items-center gap-4 bg-black text-white px-12 py-6 text-3xl font-bold uppercase rounded-full hover:bg-[#E9535E] shadow-2xl transition-all active:scale-95"
-        >
-          <Home className="w-8 h-8" />
-          Close Book
-        </button>
+      <div className="fixed bottom-4 left-4 text-[#8E8E8E] font-black text-xs opacity-50">
+        14
       </div>
     </div>
   );

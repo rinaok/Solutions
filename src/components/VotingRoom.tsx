@@ -8,29 +8,19 @@ import { CHARACTERS } from '../constants';
 import { handleFirestoreError, OperationType } from '../errorHandlers';
 
 const DEFAULT_PROMPTS = [
-  "How to stop socks from disappearing in the laundry?",
-  "Design a vehicle for a world without gravity.",
-  "Create a machine that turns bad moods into edible candy.",
-  "How to commute across the ocean without using a boat or plane?",
-  "A device that lets you speak to plants.",
-  "A solution for people who always forget their keys.",
-  "Everyone in my home...",
-  "The secret life of garden gnomes.",
-  "A restaurant where you pay with jokes.",
-  "How to make homework do itself?",
+ "The dog pooped in the house",
+  "My favorite band broke up",
+  "My dad came home angry",
+  "I failed math",
+  "My house is full of idiots",
 ];
 
 const PROMPT_IMAGES = [
-  'https://images.unsplash.com/photo-1590523277543-a94d2e4eb00b?auto=format&fit=crop&q=80&w=400',
-  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=400',
-  'https://images.unsplash.com/photo-1532499016263-f2c3e98df9cd?auto=format&fit=crop&q=80&w=400',
-  'https://images.unsplash.com/photo-1520110120385-45dc24a509ae?auto=format&fit=crop&q=80&w=400',
-  'https://images.unsplash.com/photo-1444491741275-3747c33cc99b?auto=format&fit=crop&q=80&w=400',
-  'https://images.unsplash.com/photo-1544640808-32ca72ac7f67?auto=format&fit=crop&q=80&w=400',
-  'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&q=80&w=400',
-  'https://images.unsplash.com/photo-1582234372722-50d4ccc30ef3?auto=format&fit=crop&q=80&w=400',
-  'https://images.unsplash.com/photo-1473177104440-3ecae047e3d2?auto=format&fit=crop&q=80&w=400',
-  'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&q=80&w=400',
+  'public/problems/problem_1.jpeg',
+  'public/problems/problem_2.jpeg',
+  'public/problems/problem_3.jpeg',
+  'public/problems/problem_4.jpeg',
+  'public/problems/problem_5.jpeg',
 ];
 
 export function VotingRoom() {
