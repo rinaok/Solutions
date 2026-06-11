@@ -14,7 +14,6 @@ const STICKERS = [
 
 export function CreatorRoom() {
   const { room, players, user } = useGame();
-  const [phase, setPhase] = useState<'naming' | 'sketching'>('naming');
   const [tool, setTool] = useState<'pencil' | 'eraser'>('pencil');
   const [color, setColor] = useState('#ED5F69');
   const [lines, setLines] = useState<any[]>([]);
@@ -22,7 +21,8 @@ export function CreatorRoom() {
   const [name, setName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isDone, setIsDone] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(60);
+  const [timeLeft, setTimeLeft] = useState(120);
+  const [isPrep, setIsPrep] = useState(true);
   const isDrawing = useRef(false);
   const stageRef = useRef<any>(null);
   const nameRef = useRef(name);
@@ -106,7 +106,7 @@ export function CreatorRoom() {
     const interval = setInterval(() => {
       const startedAt = room.timerStartedAt.toDate ? room.timerStartedAt.toDate().getTime() : new Date(room.timerStartedAt).getTime();
       const elapsed = (Date.now() - startedAt) / 1000;
-      const remaining = Math.max(0, 60 - elapsed);
+      const remaining = Math.max(0, 120 - elapsed);
       setTimeLeft(remaining);
       
       if (remaining <= 0 && !isSaving && !isDone) {
@@ -134,6 +134,38 @@ export function CreatorRoom() {
     }
   }, [everyoneReady, room?.id, room?.hostId, user?.uid, room?.status, players]);
 
+  if (isPrep) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center p-8 bg-[#AE8166] text-center min-h-screen">
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="max-w-md w-full space-y-8 flex flex-col items-center justify-center"
+        >
+          <div className="space-y-4">
+             <span className="text-white/60 font-black uppercase text-sm tracking-widest block">Selected Problem</span>
+             <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tight text-white leading-tight">
+               {room?.selectedPrompt}
+             </h1>
+          </div>
+          
+          <div className="bg-white/10 p-6 rounded-[4px] border-2 border-white/20 backdrop-blur-sm">
+            <p className="text-white text-lg font-black uppercase tracking-tight leading-relaxed">
+              Get Ready! You have 2 minutes to think about a solution.
+            </p>
+          </div>
+
+          <button
+            onClick={() => setIsPrep(false)}
+            className="w-full bg-[#ED5F69] text-white p-[10px] gap-[10px] flex items-center justify-center text-2xl font-black uppercase rounded-[4px] shadow-2xl hover:brightness-105 active:scale-95 transition-all"
+          >
+            I'm Ready!
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
   if (isDone) {
     return (
       <div className="h-full flex flex-col bg-[#AE8166] overflow-hidden">
@@ -143,7 +175,7 @@ export function CreatorRoom() {
             <motion.div 
               className="h-full bg-[#ED5F69]" 
               initial={{ width: '100%' }}
-              animate={{ width: `${(timeLeft / 60) * 100}%` }}
+              animate={{ width: `${(timeLeft / 120) * 100}%` }}
               transition={{ ease: 'linear' }}
             />
           </div>
@@ -193,62 +225,6 @@ export function CreatorRoom() {
     );
   }
 
-  if (phase === 'naming') {
-    return (
-      <div className="h-full flex flex-col bg-[#AE8166] overflow-hidden">
-        {/* Progress Bar Header */}
-        <div className="w-full h-8 bg-white p-2">
-          <div className="h-full bg-[#ED5F69]/20 rounded-full overflow-hidden">
-            <motion.div 
-              className="h-full bg-[#ED5F69]" 
-              initial={{ width: '100%' }}
-              animate={{ width: `${(timeLeft / 60) * 100}%` }}
-              transition={{ ease: 'linear' }}
-            />
-          </div>
-        </div>
-
-        <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8">
-          <motion.div 
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="max-w-md w-full space-y-12 text-center"
-          >
-            <h1 className="text-[30px] leading-[74px] mb-5 font-black uppercase tracking-tighter italic text-[#4A4139] text-center">
-              {room?.selectedPrompt}
-            </h1>
-            
-            <div className="space-y-6">
-               <p className="text-[#A1A1A1] font-bold uppercase tracking-tight text-sm">
-                 Name your great solution
-               </p>
-               <div className="bg-white rounded-lg shadow-sm border-2 border-white">
-                  <input 
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value.toUpperCase())}
-                    placeholder="Solution name"
-                    autoComplete="off"
-                    autoCorrect="off"
-                    spellCheck={false}
-                    className="w-full p-4 text-3xl font-black text-[#ED5F69] text-center placeholder:text-[#ED5F69]/40 outline-none"
-                  />
-               </div>
-            </div>
-            
-            <button
-              onClick={() => name && setPhase('sketching')}
-              disabled={!name}
-              className="bg-[#ED5F69] text-white p-[10px] text-3xl font-black uppercase rounded-[4px] shadow-xl hover:brightness-105 active:scale-95 transition-all disabled:opacity-50"
-            >
-              Ready!
-            </button>
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="h-full flex flex-col bg-[#AE8166] overflow-hidden">
       {/* Progress Bar Header */}
@@ -257,18 +233,33 @@ export function CreatorRoom() {
           <motion.div 
             className="h-full bg-[#ED5F69]" 
             initial={{ width: '100%' }}
-            animate={{ width: `${(timeLeft / 60) * 100}%` }}
+            animate={{ width: `${(timeLeft / 120) * 100}%` }}
             transition={{ ease: 'linear' }}
           />
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col items-center p-4 gap-6 max-w-4xl mx-auto w-full">
-        {/* Solution Title */}
-        <div className="bg-white py-2 px-8 rounded-sm shadow-sm">
-          <h2 className="text-[#ED5F69] text-2xl font-black uppercase tracking-tight">
-            {name}
-          </h2>
+      <div className="flex-1 flex flex-col items-center p-4 gap-4 max-w-4xl mx-auto w-full overflow-y-auto">
+        {/* Prompt Header */}
+        <div className="text-center">
+          <p className="text-white/60 font-black uppercase text-xs tracking-wider mb-1">PROMPT</p>
+          <h3 className="text-white text-lg font-black uppercase leading-tight italic truncate max-w-xs md:max-w-md">
+            {room?.selectedPrompt}
+          </h3>
+        </div>
+
+        {/* Editable Solution Title */}
+        <div className="bg-white px-4 py-2 rounded-[4px] shadow-sm max-w-sm w-full border-2 border-white">
+          <input 
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value.toUpperCase())}
+            placeholder="NAME YOUR SOLUTION"
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
+            className="w-full text-[#ED5F69] text-2xl font-black uppercase tracking-tight text-center outline-none border-none bg-transparent placeholder:opacity-40"
+          />
         </div>
 
         {/* Labels Row */}
@@ -412,7 +403,7 @@ export function CreatorRoom() {
           <div className="mt-auto pb-8 w-full flex justify-center">
             <button
               onClick={() => handleSave()}
-              disabled={isSaving || lines.length === 0}
+              disabled={isSaving || lines.length === 0 || !name.trim()}
               className="bg-[#ED5F69] text-white p-[10px] text-2xl font-black uppercase rounded-[4px] shadow-xl hover:brightness-105 active:scale-95 transition-all disabled:opacity-50"
             >
               {isSaving ? <Loader2 className="animate-spin" /> : 'Submit'}
