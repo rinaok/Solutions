@@ -148,7 +148,7 @@ export function Landing() {
             <div className="flex gap-[10px]">
               <button
                 onClick={handleJoinRequest}
-                className="bg-[#808080] text-white p-[10px] text-lg font-bold rounded-[4px] active:scale-95 flex-1 transition-transform whitespace-nowrap"
+                className="bg-[#F3C094] text-white p-[10px] text-lg font-bold rounded-[4px] active:scale-95 flex-1 transition-transform whitespace-nowrap"
               >
                 Join
               </button>
@@ -184,7 +184,7 @@ export function Landing() {
                 <button
                   onClick={handleCodeSubmit}
                   disabled={code.length < 4 || isLoading}
-                  className="p-[10px] bg-[#808080] text-white font-bold uppercase rounded-[4px] transition-all disabled:opacity-50 active:scale-95 flex-1"
+                  className="p-[10px] bg-[#F3C094] text-white font-bold uppercase rounded-[4px] transition-all disabled:opacity-50 active:scale-95 flex-1"
                 >
                   {isLoading ? '...' : 'Join'}
                 </button>
