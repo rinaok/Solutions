@@ -13,12 +13,12 @@ export function FinaleRoom() {
       particleCount: 150,
       spread: 70,
       origin: { y: 0.6 },
-      colors: ['#E9535E', '#000000', '#DFDFDF']
+      colors: ['#E9535E', '#000000', '#AE8166']
     });
   }, []);
 
   return (
-    <div className="h-full flex flex-col items-center bg-[#DFDFDF] overflow-y-auto relative p-8">
+    <div className="h-full flex flex-col items-center bg-[#AE8166] overflow-y-auto relative p-8">
       <div className="flex-1 w-full max-w-sm flex flex-col pt-12 pb-24">
         {solutions.filter(s => s.prize).map((sol, i) => {
           const player = players.find(p => p.id === sol.playerId);
@@ -107,7 +107,7 @@ export function FinaleRoom() {
         >
           <button
             onClick={leaveRoom}
-            className="bg-white text-[#333] px-8 py-3 text-2xl font-black uppercase rounded-sm shadow-xl hover:brightness-95 active:scale-95 transition-all"
+            className="bg-white text-[#4A4139] p-[10px] text-2xl font-black uppercase rounded-[4px] shadow-xl hover:brightness-95 active:scale-95 transition-all"
           >
             New Game
           </button>

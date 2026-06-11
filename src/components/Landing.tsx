@@ -115,7 +115,7 @@ export function Landing() {
           
           <button
             onClick={() => signIn()}
-            className="group relative flex items-center gap-3 bg-[#E9535E] text-white px-8 py-4 text-xl font-bold uppercase rounded-full hover:shadow-2xl transition-all active:scale-95 shadow-xl whitespace-nowrap"
+            className="group relative flex items-center gap-[10px] bg-[#E9535E] text-white p-[10px] text-xl font-bold uppercase rounded-[4px] hover:shadow-2xl transition-all active:scale-95 shadow-xl whitespace-nowrap"
           >
             <Zap className="w-6 h-6 fill-white" />
             Open Notebook
@@ -126,8 +126,8 @@ export function Landing() {
   }
 
   return (
-    <div className="h-full flex flex-col items-center justify-end p-4 md:p-8 bg-[#DFDFDF] overflow-hidden relative">
-      <div className="absolute top-[-20%] right-[-20%] w-[140vw] aspect-square bg-[#DFDFDF] rounded-full -z-0" />
+    <div className="h-full flex flex-col items-center justify-end p-4 md:p-8 bg-[#AE8166] overflow-hidden relative">
+      <div className="absolute top-[-20%] right-[-20%] w-[140vw] aspect-square bg-[#AE8166] rounded-full -z-0" />
 
       <motion.div
         initial={{ y: 20, opacity: 0 }}
@@ -145,16 +145,16 @@ export function Landing() {
           )}
 
           {view === 'landing' && (
-            <div className="flex gap-3">
+            <div className="flex gap-[10px]">
               <button
                 onClick={handleJoinRequest}
-                className="bg-[#808080] text-white px-8 py-3 text-lg font-bold rounded-xl active:scale-95 flex-1 transition-transform whitespace-nowrap"
+                className="bg-[#808080] text-white p-[10px] text-lg font-bold rounded-[4px] active:scale-95 flex-1 transition-transform whitespace-nowrap"
               >
                 Join
               </button>
               <button
                 onClick={handleCreateRequest}
-                className="bg-white text-black px-8 py-3 text-lg font-bold rounded-xl active:scale-95 flex-1 transition-transform whitespace-nowrap"
+                className="bg-white text-black p-[10px] text-lg font-bold rounded-[4px] active:scale-95 flex-1 transition-transform whitespace-nowrap"
               >
                 New game
               </button>
@@ -180,17 +180,17 @@ export function Landing() {
                 className="w-full bg-white border-none rounded-xl p-6 text-3xl font-bold uppercase focus:ring-2 focus:ring-black/5 outline-none shadow-sm text-center tracking-[0.5em]"
                 autoFocus
               />
-              <div className="flex gap-2">
+              <div className="flex gap-[10px]">
                 <button
                   onClick={handleCodeSubmit}
                   disabled={code.length < 4 || isLoading}
-                  className="px-8 py-3 bg-[#808080] text-white font-bold uppercase rounded-xl transition-all disabled:opacity-50 active:scale-95 flex-1"
+                  className="p-[10px] bg-[#808080] text-white font-bold uppercase rounded-[4px] transition-all disabled:opacity-50 active:scale-95 flex-1"
                 >
                   {isLoading ? '...' : 'Join'}
                 </button>
                 <button
                   onClick={() => setView('landing')}
-                  className="bg-white/50 text-black px-6 py-3 font-bold uppercase rounded-xl active:scale-95"
+                  className="bg-white/50 text-black p-[10px] font-bold uppercase rounded-[4px] active:scale-95"
                 >
                   Back
                 </button>
@@ -242,7 +242,7 @@ export function Landing() {
               <button
                 onClick={handleFinalSubmit}
                 disabled={!name || isLoading}
-                className="bg-[#ED5F69] text-white px-10 py-3 text-2xl font-black uppercase rounded shadow-lg hover:brightness-105 active:scale-95 transition-all disabled:opacity-50"
+                className="bg-[#ED5F69] text-white p-[10px] text-2xl font-black uppercase rounded-[4px] shadow-lg hover:brightness-105 active:scale-95 transition-all disabled:opacity-50"
               >
                 {isLoading ? '...' : (action === 'create' ? 'Create' : 'Join')}
               </button>

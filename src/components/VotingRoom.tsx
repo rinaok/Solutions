@@ -34,7 +34,7 @@ export function VotingRoom() {
     const hostCharacter = CHARACTERS.find(c => c.id === host?.avatar);
 
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-[#DFDFDF] overflow-hidden">
+      <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-[#AE8166] overflow-hidden">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -107,7 +107,7 @@ export function VotingRoom() {
   };
 
   return (
-    <div className="h-full flex flex-col items-center justify-between p-4 md:p-8 bg-[#DFDFDF] overflow-hidden">
+    <div className="h-full flex flex-col items-center justify-between p-4 md:p-8 bg-[#AE8166] overflow-hidden">
       <div className="pt-6 md:pt-12">
         <h2 className="text-[#A1A1A1] text-2xl font-black uppercase text-center tracking-tighter">
           Swipe to see all
@@ -154,7 +154,7 @@ export function VotingRoom() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
             </div>
             <div className="h-[120px] flex items-center justify-center p-4">
-              <h3 className="text-2xl font-black text-center leading-none tracking-tighter text-[#333]">
+              <h3 className="text-2xl font-black text-center leading-none tracking-tighter text-[#4A4139]">
                 {DEFAULT_PROMPTS[index]}
               </h3>
             </div>
@@ -166,7 +166,7 @@ export function VotingRoom() {
         {isHost ? (
           <button
             onClick={finishSelection}
-            className="bg-[#ED5F69] text-white px-12 py-4 text-2xl font-black uppercase rounded-lg shadow-xl hover:brightness-105 active:scale-95 transition-all"
+            className="bg-[#ED5F69] text-white p-[10px] text-2xl font-black uppercase rounded-[4px] shadow-xl hover:brightness-105 active:scale-95 transition-all"
           >
             That's the one!
           </button>

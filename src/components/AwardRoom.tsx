@@ -60,7 +60,7 @@ export function AwardRoom() {
 
   if (isAwarded) {
     return (
-      <div className="h-full flex flex-col items-center justify-center bg-[#DFDFDF] p-8 space-y-12">
+      <div className="h-full flex flex-col items-center justify-center bg-[#AE8166] p-8 space-y-12">
         <div className="w-64 h-64 bg-white rounded-full flex items-center justify-center shadow-2xl">
           <Trophy className="w-40 h-40 text-[#ED5F69]" />
         </div>
@@ -88,7 +88,7 @@ export function AwardRoom() {
         {isHost && everyoneAwarded && (
           <button
             onClick={finishAwards}
-            className="bg-black text-white px-12 py-4 text-2xl font-black uppercase rounded-lg shadow-xl hover:brightness-105 active:scale-95 transition-all mt-8"
+            className="bg-black text-white p-[10px] text-2xl font-black uppercase rounded-[4px] shadow-xl hover:brightness-105 active:scale-95 transition-all mt-8"
           >
             Go to Finale
           </button>
@@ -98,7 +98,7 @@ export function AwardRoom() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-[#DFDFDF] overflow-hidden">
+    <div className="h-full flex flex-col bg-[#AE8166] overflow-hidden">
       <div className="flex-1 flex flex-col items-center p-8 space-y-8 overflow-y-auto">
         {/* Trophy Illustration */}
         <div className="relative">
@@ -132,7 +132,7 @@ export function AwardRoom() {
             <button
               key={s.id}
               onClick={() => handleAward(s.id)}
-              className="w-full bg-white py-4 px-6 rounded-sm shadow-xl text-2xl font-black uppercase text-[#333] hover:brightness-95 active:scale-[0.98] transition-all text-center"
+              className="w-full bg-white p-[10px] rounded-[4px] shadow-xl text-2xl font-black uppercase text-[#4A4139] hover:brightness-95 active:scale-[0.98] transition-all text-center"
             >
               {s.name}
             </button>

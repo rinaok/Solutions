@@ -136,7 +136,7 @@ export function CreatorRoom() {
 
   if (isDone) {
     return (
-      <div className="h-full flex flex-col bg-[#DFDFDF] overflow-hidden">
+      <div className="h-full flex flex-col bg-[#AE8166] overflow-hidden">
         {/* Progress Bar Header */}
         <div className="w-full h-8 bg-white p-2">
           <div className="h-full bg-[#ED5F69]/20 rounded-full overflow-hidden">
@@ -195,7 +195,7 @@ export function CreatorRoom() {
 
   if (phase === 'naming') {
     return (
-      <div className="h-full flex flex-col bg-[#DFDFDF] overflow-hidden">
+      <div className="h-full flex flex-col bg-[#AE8166] overflow-hidden">
         {/* Progress Bar Header */}
         <div className="w-full h-8 bg-white p-2">
           <div className="h-full bg-[#ED5F69]/20 rounded-full overflow-hidden">
@@ -214,7 +214,7 @@ export function CreatorRoom() {
             animate={{ y: 0, opacity: 1 }}
             className="max-w-md w-full space-y-12 text-center"
           >
-            <h1 className="text-[30px] leading-[74px] mb-5 font-black uppercase tracking-tighter italic text-[#333] text-center">
+            <h1 className="text-[30px] leading-[74px] mb-5 font-black uppercase tracking-tighter italic text-[#4A4139] text-center">
               {room?.selectedPrompt}
             </h1>
             
@@ -239,7 +239,7 @@ export function CreatorRoom() {
             <button
               onClick={() => name && setPhase('sketching')}
               disabled={!name}
-              className="bg-[#ED5F69] text-white px-16 py-4 text-3xl font-black uppercase rounded-lg shadow-xl hover:brightness-105 active:scale-95 transition-all disabled:opacity-50"
+              className="bg-[#ED5F69] text-white p-[10px] text-3xl font-black uppercase rounded-[4px] shadow-xl hover:brightness-105 active:scale-95 transition-all disabled:opacity-50"
             >
               Ready!
             </button>
@@ -250,7 +250,7 @@ export function CreatorRoom() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-[#DFDFDF] overflow-hidden">
+    <div className="h-full flex flex-col bg-[#AE8166] overflow-hidden">
       {/* Progress Bar Header */}
       <div className="w-full h-8 bg-white p-2">
         <div className="h-full bg-[#ED5F69]/20 rounded-full overflow-hidden">
@@ -280,25 +280,25 @@ export function CreatorRoom() {
         {/* Main Creation Area */}
         <div className="w-full flex items-start justify-center gap-4 relative">
           {/* Left Toolbar - Drawing */}
-          <div className="flex flex-col gap-4 bg-white p-2 rounded-lg shadow-md self-start">
+          <div className="flex flex-col gap-[10px] bg-white p-2 rounded-[4px] shadow-md self-start">
              <button 
                onClick={() => setTool('pencil')}
-               className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${tool === 'pencil' ? 'bg-[#DFDFDF] ring-4 ring-[#ED5F69]' : 'bg-[#DFDFDF]'}`}
+               className={`w-12 h-12 rounded-[4px] flex items-center justify-center transition-all ${tool === 'pencil' ? 'bg-[#DFDFDF] ring-4 ring-[#ED5F69]' : 'bg-[#DFDFDF]'}`}
              >
                <div className="w-4 h-4 rounded-full bg-[#ED5F69]" />
              </button>
              <button 
                onClick={() => setTool('eraser')}
-               className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all ${tool === 'eraser' ? 'bg-[#ED5F69] text-white' : 'bg-[#DFDFDF] text-black/20'}`}
+               className={`w-12 h-12 rounded-[4px] flex items-center justify-center transition-all ${tool === 'eraser' ? 'bg-[#ED5F69] text-white' : 'bg-[#DFDFDF] text-black/20'}`}
              >
                <Eraser className="w-6 h-6 rotate-12" />
              </button>
 
              <div className="h-[2px] bg-black/5 my-2" />
 
-             <button onClick={() => { setTool('pencil'); setColor('#ED5F69'); }} className={`w-12 h-12 rounded-sm bg-[#ED5F69] transition-transform ${color === '#ED5F69' && tool === 'pencil' ? 'scale-110 shadow-lg' : 'opacity-80'}`} />
-             <button onClick={() => { setTool('pencil'); setColor('#F28C94'); }} className={`w-12 h-12 rounded-sm bg-[#F28C94] transition-transform ${color === '#F28C94' && tool === 'pencil' ? 'scale-110 shadow-lg' : 'opacity-80'}`} />
-             <button onClick={() => { setTool('pencil'); setColor('#4CAF50'); }} className={`w-12 h-12 rounded-sm bg-[#4CAF50] transition-transform ${color === '#4CAF50' && tool === 'pencil' ? 'scale-110 shadow-lg' : 'opacity-80'}`} />
+             <button onClick={() => { setTool('pencil'); setColor('#ED5F69'); }} className={`w-12 h-12 rounded-[4px] bg-[#ED5F69] transition-transform ${color === '#ED5F69' && tool === 'pencil' ? 'scale-110 shadow-lg' : 'opacity-80'}`} />
+             <button onClick={() => { setTool('pencil'); setColor('#F28C94'); }} className={`w-12 h-12 rounded-[4px] bg-[#F28C94] transition-transform ${color === '#F28C94' && tool === 'pencil' ? 'scale-110 shadow-lg' : 'opacity-80'}`} />
+             <button onClick={() => { setTool('pencil'); setColor('#4CAF50'); }} className={`w-12 h-12 rounded-[4px] bg-[#4CAF50] transition-transform ${color === '#4CAF50' && tool === 'pencil' ? 'scale-110 shadow-lg' : 'opacity-80'}`} />
           </div>
 
           {/* Canvas Card */}
@@ -413,7 +413,7 @@ export function CreatorRoom() {
             <button
               onClick={() => handleSave()}
               disabled={isSaving || lines.length === 0}
-              className="bg-[#ED5F69] text-white px-12 py-3 text-2xl font-black uppercase rounded-lg shadow-xl hover:brightness-105 active:scale-95 transition-all disabled:opacity-50"
+              className="bg-[#ED5F69] text-white p-[10px] text-2xl font-black uppercase rounded-[4px] shadow-xl hover:brightness-105 active:scale-95 transition-all disabled:opacity-50"
             >
               {isSaving ? <Loader2 className="animate-spin" /> : 'Submit'}
             </button>

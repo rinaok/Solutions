@@ -37,7 +37,7 @@ export function WaitingRoom() {
   }
 
   return (
-    <div className="h-full flex flex-col p-4 md:p-8 bg-[#DFDFDF] overflow-y-auto">
+    <div className="h-full flex flex-col p-4 md:p-8 bg-[#AE8166] overflow-y-auto">
       <div className="flex justify-between items-start mb-12">
         <div className="space-y-4">
           <button onClick={handleExit} className="flex items-center gap-2 font-black uppercase hover:opacity-60 transition-opacity">
@@ -45,7 +45,7 @@ export function WaitingRoom() {
           </button>
           <div className="flex items-center gap-4">
              <h2 className="text-6xl font-black uppercase tracking-widest">{room?.roomCode}</h2>
-             <button onClick={copyCode} className="p-3 bg-white hover:shadow-md rounded-full transition-all active:scale-90">
+             <button onClick={copyCode} className="p-[10px] bg-white hover:shadow-md rounded-[4px] transition-all active:scale-90">
                <Copy className="w-6 h-6" />
              </button>
           </div>
@@ -99,7 +99,7 @@ export function WaitingRoom() {
             <button
               onClick={startGame}
               disabled={players.length < 2}
-              className="w-full flex items-center justify-center gap-3 bg-[#E9535E] text-white p-6 font-black uppercase rounded-full hover:opacity-90 transition-all group active:scale-95 disabled:opacity-30"
+              className="w-full flex items-center justify-center gap-[10px] bg-[#E9535E] text-white p-[10px] font-black uppercase rounded-[4px] hover:opacity-90 transition-all group active:scale-95 disabled:opacity-30"
             >
               <Play className="w-6 h-6 fill-current" />
               Everyone is in!

@@ -54,7 +54,7 @@ export function PresentationRoom() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-[#DFDFDF] overflow-hidden relative p-8">
+    <div className="h-full flex flex-col bg-[#AE8166] overflow-hidden relative p-8">
       {/* Avatar Section */}
       <div className="absolute top-4 left-4 z-10 flex flex-col items-center">
         <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-xl border-4 border-white overflow-hidden">
@@ -127,7 +127,7 @@ export function PresentationRoom() {
             <button
               onClick={nextPresenter}
               style={{ backgroundColor: brandColor }}
-              className="text-white px-12 py-3 text-2xl font-black uppercase rounded-lg shadow-xl hover:brightness-105 active:scale-95 transition-all"
+              className="text-white p-[10px] text-2xl font-black uppercase rounded-[4px] shadow-xl hover:brightness-105 active:scale-95 transition-all"
             >
               {players.findIndex(p => p.id === currentPresenterId) === players.length - 1 ? 'Finish' : 'Next'}
             </button>

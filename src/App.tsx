@@ -42,7 +42,7 @@ function GameRouter() {
   };
 
   return (
-    <div className="min-h-screen bg-[#DFDFDF] text-[#000000] selection:bg-[#E9535E] selection:text-white">
+    <div className="min-h-screen bg-[#AE8166] text-[#4A4139] selection:bg-[#E9535E] selection:text-white">
       <AnimatePresence mode="wait">
         <motion.div
           key={room.status}
