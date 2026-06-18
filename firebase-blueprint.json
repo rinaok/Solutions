@@ -14,7 +14,9 @@
         "prompts": { "type": "array", "items": { "type": "string" } },
         "presentingPlayerId": { "type": "string" },
         "timerStartedAt": { "type": "string", "format": "date-time" },
-        "createdAt": { "type": "string", "format": "date-time" }
+        "createdAt": { "type": "string", "format": "date-time" },
+        "prizes": { "type": "array", "items": { "type": "object" } },
+        "currentPrizeIndex": { "type": "number" }
       },
       "required": ["roomCode", "status", "hostId", "createdAt"]
     },
@@ -28,7 +30,8 @@
         "isReady": { "type": "boolean" },
         "vote": { "type": "string" },
         "status": { "type": "string" },
-        "joinedAt": { "type": "string", "format": "date-time" }
+        "joinedAt": { "type": "string", "format": "date-time" },
+        "votes": { "type": "object" }
       },
       "required": ["name"]
     },
@@ -48,6 +51,7 @@
             "from": { "type": "string" }
           }
         },
+        "prizes": { "type": "array", "items": { "type": "object" } },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["playerId", "name", "canvasData"]

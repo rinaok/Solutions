@@ -20,13 +20,45 @@ export function Landing() {
     return Math.random().toString(36).substring(2, 6).toUpperCase();
   };
 
-  const handleCreateRequest = () => {
+  const handleCreateRequest = async () => {
     setAction('create');
+    if (!user) {
+      setIsLoading(true);
+      try {
+        const signedInUser = await signIn();
+        if (!signedInUser) {
+          setIsLoading(false);
+          setAction(null);
+          return;
+        }
+      } catch (err) {
+        setIsLoading(false);
+        setAction(null);
+        return;
+      }
+      setIsLoading(false);
+    }
     setView('profile');
   };
 
-  const handleJoinRequest = () => {
+  const handleJoinRequest = async () => {
     setAction('join');
+    if (!user) {
+      setIsLoading(true);
+      try {
+        const signedInUser = await signIn();
+        if (!signedInUser) {
+          setIsLoading(false);
+          setAction(null);
+          return;
+        }
+      } catch (err) {
+        setIsLoading(false);
+        setAction(null);
+        return;
+      }
+      setIsLoading(false);
+    }
     setView('join-code');
   };
 
@@ -98,33 +130,6 @@ export function Landing() {
     }
   };
 
-  if (!user) {
-    return (
-      <div className="h-full flex flex-col items-center justify-end p-4 md:p-8 bg-[#D9D9D9] overflow-hidden relative">
-        <div className="absolute top-[-20%] right-[-20%] w-[140vw] aspect-square bg-white rounded-full -z-0" />
-        
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="relative z-10 text-left w-full max-w-sm pb-16"
-        >
-          <h1 className="text-6xl font-black tracking-tighter leading-none mb-2">
-            Solutions
-          </h1>
-          <p className="text-lg font-medium tracking-tight mb-8 opacity-60">A game about creating</p>
-          
-          <button
-            onClick={() => signIn()}
-            className="group relative flex items-center gap-[10px] bg-[#E9535E] text-white p-[10px] text-xl font-bold uppercase rounded-[4px] hover:shadow-2xl transition-all active:scale-95 shadow-xl whitespace-nowrap"
-          >
-            <Zap className="w-6 h-6 fill-white" />
-            Open Notebook
-          </button>
-        </motion.div>
-      </div>
-    );
-  }
-
   return (
     <div className="h-full flex flex-col items-center justify-end p-4 md:p-8 bg-[#AE8166] overflow-hidden relative">
       <div className="absolute top-[-20%] right-[-20%] w-[140vw] aspect-square bg-[#AE8166] rounded-full -z-0" />
@@ -148,15 +153,17 @@ export function Landing() {
             <div className="flex gap-[10px]">
               <button
                 onClick={handleJoinRequest}
-                className="bg-[#F3C094] text-white p-[10px] text-lg font-bold rounded-[4px] active:scale-95 flex-1 transition-transform whitespace-nowrap"
+                disabled={isLoading}
+                className="bg-[#4A4138] text-white p-[10px] text-lg font-bold rounded-[4px] active:scale-95 flex-1 transition-transform whitespace-nowrap disabled:opacity-70 disabled:scale-100"
               >
-                Join
+                {isLoading && action === 'join' ? 'Connecting...' : 'Join'}
               </button>
               <button
                 onClick={handleCreateRequest}
-                className="bg-white text-black p-[10px] text-lg font-bold rounded-[4px] active:scale-95 flex-1 transition-transform whitespace-nowrap"
+                disabled={isLoading}
+                className="bg-white text-black p-[10px] text-lg font-bold rounded-[4px] active:scale-95 flex-1 transition-transform whitespace-nowrap disabled:opacity-70 disabled:scale-100"
               >
-                New game
+                {isLoading && action === 'create' ? 'Connecting...' : 'New game'}
               </button>
             </div>
           )}
@@ -184,7 +191,7 @@ export function Landing() {
                 <button
                   onClick={handleCodeSubmit}
                   disabled={code.length < 4 || isLoading}
-                  className="p-[10px] bg-[#F3C094] text-white font-bold uppercase rounded-[4px] transition-all disabled:opacity-50 active:scale-95 flex-1"
+                  className="p-[10px] bg-[#4A4138] text-white font-bold uppercase rounded-[4px] transition-all disabled:opacity-50 active:scale-95 flex-1"
                 >
                   {isLoading ? '...' : 'Join'}
                 </button>

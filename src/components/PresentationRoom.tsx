@@ -5,7 +5,7 @@ import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { motion } from 'motion/react';
 import { Play, SkipForward, Mic2, Megaphone } from 'lucide-react';
 import { handleFirestoreError, OperationType } from '../errorHandlers';
-import { CHARACTERS } from '../constants';
+import { CHARACTERS, AWARDS } from '../constants';
 
 export function PresentationRoom() {
   const { room, players, solutions, user } = useGame();
@@ -37,6 +37,20 @@ export function PresentationRoom() {
     return () => clearInterval(interval);
   }, [room?.timerStartedAt, currentPresenterId, isHost]);
 
+  const generatePrizes = (numPlayers: number) => {
+    const shuffled = [...AWARDS].sort(() => 0.5 - Math.random());
+    if (numPlayers <= AWARDS.length) {
+      return shuffled.slice(0, numPlayers);
+    } else {
+      const result = [...shuffled];
+      while (result.length < numPlayers) {
+        const extra = AWARDS[Math.floor(Math.random() * AWARDS.length)];
+        result.push(extra);
+      }
+      return result;
+    }
+  };
+
   const nextPresenter = async () => {
     if (!room) return;
     const currentIndex = players.findIndex(p => p.id === currentPresenterId);
@@ -47,8 +61,11 @@ export function PresentationRoom() {
         timerStartedAt: serverTimestamp()
       });
     } else {
+      const selectedPrizes = generatePrizes(players.length);
       await updateDoc(doc(db, 'rooms', room.id), {
-        status: 'awarding'
+        status: 'awarding',
+        prizes: selectedPrizes,
+        currentPrizeIndex: 0
       });
     }
   };

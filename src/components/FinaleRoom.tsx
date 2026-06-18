@@ -1,9 +1,26 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGame } from '../GameContext';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Trophy, Home } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { CHARACTERS } from '../constants';
+import { CHARACTERS, AWARDS } from '../constants';
+
+function AwardImage({ src, fallback, className }: { src: string; fallback: React.ReactNode; className?: string }) {
+  const [hasError, setHasError] = useState(false);
+  if (hasError || !src) {
+    return <>{fallback}</>;
+  }
+  return (
+    <img
+      src={src}
+      onError={() => setHasError(true)}
+      className={className}
+      referrerPolicy="no-referrer"
+      alt="Award Photo"
+    />
+  );
+}
+
 
 export function FinaleRoom() {
   const { solutions, players, leaveRoom } = useGame();
@@ -20,10 +37,12 @@ export function FinaleRoom() {
   return (
     <div className="h-full flex flex-col items-center bg-[#AE8166] overflow-y-auto relative p-8">
       <div className="flex-1 w-full max-w-sm flex flex-col pt-12 pb-24">
-        {solutions.filter(s => s.prize).map((sol, i) => {
+        {solutions.filter(s => s.prize || (s.prizes && s.prizes.length > 0)).map((sol, i) => {
           const player = players.find(p => p.id === sol.playerId);
           const canvasData = JSON.parse(sol.canvasData);
           const character = CHARACTERS.find(c => c.id === player?.avatar);
+          const wonPrizes = sol.prizes || (sol.prize ? [sol.prize] : []);
+          const primaryPrize = wonPrizes[0];
           
           return (
             <motion.div
@@ -79,8 +98,17 @@ export function FinaleRoom() {
                             <div className="absolute -top-12 left-8 w-4 h-18 bg-[#E9535E] rounded-full border-2 border-white transform rotate-[35deg] shadow-sm" />
                             
                             {/* The Trophy */}
-                            <div className="relative z-10">
-                               <Trophy className="w-20 h-20 text-[#D4AF37] fill-[#FFD700]" />
+                            <div className="relative z-10 bg-white rounded-full p-2 border-2 border-amber-300 shadow-md flex items-center justify-center w-14 h-14">
+                               <AwardImage 
+                                 src={primaryPrize?.src || "/awards/award_1.png"}
+                                 fallback={<Trophy className="w-10 h-10 text-[#D4AF37] fill-[#FFD700]" />}
+                                 className="w-10 h-10 object-contain"
+                               />
+                               {wonPrizes.length > 1 && (
+                                 <div className="absolute -top-1.5 -right-1.5 bg-[#ED5F69] text-white text-[9px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border border-white shadow-sm">
+                                   +{wonPrizes.length - 1}
+                                 </div>
+                               )}
                             </div>
                          </div>
                       </div>
@@ -93,6 +121,16 @@ export function FinaleRoom() {
                 <h3 className="text-[#E9535E] text-2xl font-black uppercase tracking-tight">
                   {sol.name}
                 </h3>
+                <div className="flex flex-wrap justify-center gap-1 mt-2">
+                  {wonPrizes.map((p: any, idx: number) => (
+                    <span 
+                      key={idx} 
+                      className="bg-[#ED5F69]/10 text-[#ED5F69] text-[9px] font-black uppercase px-2 py-0.5 rounded-full border border-[#ED5F69]/20"
+                    >
+                      🏆 {p.name}
+                    </span>
+                  ))}
+                </div>
               </div>
             </motion.div>
           );
