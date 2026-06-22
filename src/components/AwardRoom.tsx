@@ -176,7 +176,7 @@ export function AwardRoom() {
         {isHost && everyoneVoted && (
           <button
             onClick={handleNextAward}
-            className="w-full max-w-xs bg-white text-[#4A4139] p-[12px] text-xl font-black uppercase rounded-[4px] shadow-2xl hover:bg-white/90 active:scale-95 transition-all mt-4"
+            className="w-full max-w-xs bg-white text-[#4A4138] p-[12px] text-xl font-black uppercase rounded-[4px] shadow-2xl hover:bg-white/90 active:scale-95 transition-all mt-4"
           >
             {currentPrizeIndex + 1 === prizes.length ? 'Show Results!' : 'Next Award'}
           </button>
@@ -242,14 +242,14 @@ export function AwardRoom() {
               <button
                 key={s.id}
                 onClick={() => handleVote(s.id)}
-                className="w-full bg-white p-[12px] rounded-[4px] shadow-xl text-lg font-black uppercase text-[#4A4139] hover:bg-white/95 active:scale-[0.98] transition-all text-left flex items-center justify-between gap-3 border-2 border-transparent hover:border-[#ED5F69]"
+                className="w-full bg-white p-[12px] rounded-[4px] shadow-xl text-lg font-black uppercase text-[#4A4138] hover:bg-white/95 active:scale-[0.98] transition-all text-left flex items-center justify-between gap-3 border-2 border-transparent hover:border-[#ED5F69]"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-[#AE8166]/10 flex items-center justify-center overflow-hidden">
                     <img src={CHARACTERS.find(c => c.id === solutionPlayer?.avatar)?.src} className="w-7 h-7 object-contain" />
                   </div>
                   <div className="truncate">
-                    <div className="font-extrabold truncate text-base leading-tight text-[#4A4139]">{s.name}</div>
+                    <div className="font-extrabold truncate text-base leading-tight text-[#4A4138]">{s.name}</div>
                     <div className="text-xs text-black/40 font-bold lowercase">by {solutionPlayer?.name || 'player'}</div>
                   </div>
                 </div>

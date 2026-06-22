@@ -145,7 +145,7 @@ export function FinaleRoom() {
         >
           <button
             onClick={leaveRoom}
-            className="bg-white text-[#4A4139] p-[10px] text-2xl font-black uppercase rounded-[4px] shadow-xl hover:brightness-95 active:scale-95 transition-all"
+            className="bg-white text-[#4A4138] p-[10px] text-2xl font-black uppercase rounded-[4px] shadow-xl hover:brightness-95 active:scale-95 transition-all"
           >
             New Game
           </button>

@@ -154,7 +154,7 @@ export function VotingRoom() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
             </div>
             <div className="h-[120px] flex items-center justify-center p-4">
-              <h3 className="text-2xl font-black text-center leading-none tracking-tighter text-[#4A4139]">
+              <h3 className="text-2xl font-black text-center leading-none tracking-tighter text-[#4A4138]">
                 {DEFAULT_PROMPTS[index]}
               </h3>
             </div>
