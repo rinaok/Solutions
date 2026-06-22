@@ -207,13 +207,23 @@ export function CreatorRoom() {
                   }}
                   className="absolute flex flex-col items-center gap-2"
                 >
-                  <div className={`w-24 h-24 rounded-full bg-white flex items-center justify-center shadow-xl border-4 ${p.isReady ? 'border-white' : 'border-transparent opacity-30 shadow-none'}`}>
+                  <div className={`w-24 h-24 flex items-center justify-center relative transition-all duration-300 ${p.isReady ? 'scale-110 filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.15)] opacity-100' : 'opacity-40 grayscale'}`}>
                     <img 
                       src={CHARACTERS.find(c => c.id === p.avatar)?.src} 
-                      className={`w-16 h-16 object-contain ${!p.isReady && 'grayscale'}`} 
+                      className="w-24 h-24 object-contain relative z-10" 
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        if (target.nextSibling) {
+                          (target.nextSibling as HTMLElement).classList.remove('hidden');
+                        }
+                      }}
                     />
+                    <div className="mini-fallback hidden text-5xl">
+                      {CHARACTERS.find(c => c.id === p.avatar)?.emoji}
+                    </div>
                   </div>
-                  <span className={`font-black uppercase text-sm ${p.isReady ? 'text-[#ED5F69]' : 'text-[#A1A1A1]'}`}>
+                  <span className={`font-extrabold uppercase text-xs tracking-wider px-2 py-0.5 rounded-sm shadow-sm transition-all duration-300 ${p.isReady ? 'bg-[#FFFBFB]/25 text-[#433D34]' : 'bg-[#FFFBFB]/10 text-[#433D34]/50'}`}>
                     {p.name}
                   </span>
                 </motion.div>
@@ -294,7 +304,8 @@ export function CreatorRoom() {
 
           {/* Canvas Card */}
           <div 
-            className="flex-1 max-w-[340px] aspect-[3/4] bg-white rounded-lg shadow-2xl overflow-hidden touch-none relative p-2 border-2 border-white"
+            className="flex-1 max-w-[340px] aspect-[3/4] rounded-lg shadow-2xl overflow-hidden touch-none relative p-2 border-2 border-white bg-cover bg-center"
+            style={{ backgroundImage: "url('/backgrounds/notebook.png')" }}
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               e.preventDefault();

@@ -95,7 +95,10 @@ export function PresentationRoom() {
         </div>
 
         {/* Drawing Card */}
-        <div className="w-[85%] aspect-[3/4] max-h-[50vh] bg-white rounded-lg shadow-2xl overflow-hidden relative p-4 border-2 border-white">
+        <div 
+          className="w-[85%] aspect-[3/4] max-h-[50vh] rounded-lg shadow-2xl overflow-hidden relative p-4 border-2 border-white bg-cover bg-center"
+          style={{ backgroundImage: "url('/backgrounds/notebook.png')" }}
+        >
           <svg viewBox="0 0 340 450" className="w-full h-full">
             {canvasData.lines.map((line: any, i: number) => (
               <polyline

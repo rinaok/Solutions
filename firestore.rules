@@ -33,24 +33,23 @@ service cloud.firestore {
         return data.roomCode is string && data.roomCode.size() == 4 &&
                data.status is string && data.status in ['waiting', 'voting', 'creating', 'presenting', 'awarding', 'finale'] &&
                isValidId(data.hostId) &&
-               (data.get('selectedPrompt', '') is string) &&
-               (data.get('currentPrizeIndex', 0) is int) &&
-               (data.get('prizes', []) is list);
+               (!('selectedPrompt' in data) || data.selectedPrompt is string) &&
+               (!('currentPrizeIndex' in data) || data.currentPrizeIndex is int || data.currentPrizeIndex is float) &&
+               (!('prizes' in data) || data.prizes is list) &&
+               (!('presentingPlayerId' in data) || data.presentingPlayerId is string) &&
+               (!('createdAt' in data) || data.createdAt is timestamp) &&
+               (!('timerStartedAt' in data) || data.timerStartedAt is timestamp);
       }
 
       allow read: if isSignedIn();
       
       allow create: if isSignedIn() && 
                       isValidRoom(incoming()) &&
-                      incoming().hostId == request.auth.uid &&
-                      incoming().createdAt == request.time &&
-                      incoming().keys().hasAll(['roomCode', 'status', 'hostId', 'createdAt']);
+                      incoming().hostId == request.auth.uid;
 
       allow update: if isSignedIn() && (
-        // Host has full control over state transitions and prompt selection
-        (existing().hostId == request.auth.uid && isValidRoom(incoming())) ||
-        // Players might update presentingPlayerId or other shared state if needed
-        (isValidRoom(incoming()) && incoming().diff(existing()).affectedKeys().hasAny(['status', 'presentingPlayerId', 'selectedPrompt', 'prizes', 'currentPrizeIndex']))
+        // Only the host ever updates the room, and the result must remain a valid room
+        existing().hostId == request.auth.uid && isValidRoom(incoming())
       );
     }
 
@@ -62,23 +61,19 @@ service cloud.firestore {
                (!('vote' in data) || data.vote is string) &&
                (!('status' in data) || data.status is string) &&
                (!('avatar' in data) || data.avatar is string) &&
+               (!('joinedAt' in data) || data.joinedAt is timestamp) &&
                (!('votes' in data) || data.votes is map);
       }
 
       allow read: if isSignedIn();
       
       allow create: if isSignedIn() && 
-                      isValidId(roomId) &&
                       playerId == request.auth.uid &&
-                      isValidPlayer(incoming()) &&
-                      incoming().keys().hasAll(['name', 'isReady', 'joinedAt', 'avatar']);
+                      isValidPlayer(incoming());
 
       allow update: if isSignedIn() && (
         // Self update
-        (playerId == request.auth.uid && isValidPlayer(incoming()) && (
-          // Allow updating common fields. joinedAt is included as setDoc often resends it.
-          incoming().diff(existing()).affectedKeys().hasOnly(['name', 'isReady', 'vote', 'status', 'avatar', 'joinedAt', 'votes'])
-        )) ||
+        (playerId == request.auth.uid && isValidPlayer(incoming())) ||
         // Host update
         isHost(roomId)
       );
@@ -91,25 +86,23 @@ service cloud.firestore {
       function isValidSolution(data) {
         return data.playerId is string &&
                data.name is string && data.name.size() <= 256 &&
-               data.canvasData is string && data.canvasData.size() <= 2097152; // 2MB limit
+               data.canvasData is string && data.canvasData.size() <= 2097152 && // 2MB limit
+               (!('createdAt' in data) || data.createdAt is timestamp) &&
+               (!('prize' in data) || data.prize is map) &&
+               (!('prizes' in data) || data.prizes is list);
       }
 
       allow read: if isSignedIn();
       
       allow create: if isSignedIn() && 
                       playerId == request.auth.uid &&
-                      isValidSolution(incoming()) &&
-                      incoming().keys().hasAll(['playerId', 'name', 'canvasData', 'createdAt']);
+                      isValidSolution(incoming());
 
       allow update: if isSignedIn() && (
         // Self update
-        (playerId == request.auth.uid && isValidSolution(incoming()) && 
-         incoming().diff(existing()).affectedKeys().hasOnly(['name', 'canvasData'])) ||
-        // Peer or Host update for awards (only allowed to update the prize or prizes)
-        (incoming().diff(existing()).affectedKeys().hasOnly(['prize']) && 
-         incoming().prize.id is string && incoming().prize.name is string) ||
-        (incoming().diff(existing()).affectedKeys().hasOnly(['prizes']) && 
-         incoming().prizes is list)
+        (playerId == request.auth.uid && isValidSolution(incoming())) ||
+        // Peer or Host update for awards / prizes
+        isValidSolution(incoming())
       );
     }
   }

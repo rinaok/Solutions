@@ -62,7 +62,10 @@ export function FinaleRoom() {
 
               {/* Drawing Card */}
               <div className="relative">
-                <div className="bg-white rounded-sm shadow-2xl p-4 aspect-[3/4] flex flex-col border-2 border-white overflow-hidden">
+                <div 
+                  className="rounded-sm shadow-2xl p-4 aspect-[3/4] flex flex-col border-2 border-white overflow-hidden bg-cover bg-center"
+                  style={{ backgroundImage: "url('/backgrounds/notebook.png')" }}
+                >
                   <svg viewBox="0 0 340 450" className="w-full h-full">
                     {canvasData.lines.map((line: any, j: number) => (
                       <polyline

@@ -31,7 +31,7 @@
     -webkit-tap-highlight-color: transparent;
     color: #433D34;
     background-color: #AE8166;
-    background-image: url('./wood_bg.svg');
+    background-image: url('/backgrounds/bg.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
