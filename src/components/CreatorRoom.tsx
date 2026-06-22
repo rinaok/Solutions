@@ -45,7 +45,7 @@ export function CreatorRoom() {
     isDrawing.current = true;
     const stage = e.target.getStage();
     const pos = stage.getPointerPosition();
-    setLines([...lines, { tool, points: [pos.x, pos.y], color: tool === 'eraser' ? '#ffffff' : color }]);
+    setLines([...lines, { tool, points: [pos.x, pos.y], color: tool === 'eraser' ? '#FFFBFB' : color }]);
   };
 
   const handleMouseMove = (e: any) => {

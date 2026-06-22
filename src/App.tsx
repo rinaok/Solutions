@@ -19,7 +19,7 @@ function GameRouter() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FFFFFF]">
+      <div className="min-h-screen flex items-center justify-center bg-[#FFFBFB]">
         <Loader2 className="w-12 h-12 animate-spin text-[#000000]" />
       </div>
     );
@@ -42,7 +42,7 @@ function GameRouter() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent text-[#4A4138] selection:bg-[#E9535E] selection:text-white">
+    <div className="min-h-screen bg-transparent text-[#433D34] selection:bg-[#E9535E] selection:text-white">
       <AnimatePresence mode="wait">
         <motion.div
           key={room.status}

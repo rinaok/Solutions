@@ -12,7 +12,8 @@
   --font-weight-bold: 400;
   --font-weight-extrabold: 400;
   --font-weight-black: 400;
-  --color-black: #4A4138;
+  --color-black: #433D34;
+  --color-white: #FFFBFB;
 }
 
 @layer base {
@@ -28,7 +29,7 @@
     overflow: hidden;
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
-    color: #4A4138;
+    color: #433D34;
     background-color: #AE8166;
     background-image: url('/wood_bg.svg');
     background-size: cover;

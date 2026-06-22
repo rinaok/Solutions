@@ -150,48 +150,48 @@ export function Landing() {
 
           {view === 'landing' && (
             <div className="flex gap-[10px]">
-              <button
-                onClick={handleJoinRequest}
-                disabled={isLoading}
-                className="bg-[#4A4138] text-white p-[10px] text-lg font-bold rounded-[4px] active:scale-95 flex-1 transition-transform whitespace-nowrap disabled:opacity-70 disabled:scale-100"
-              >
-                {isLoading && action === 'join' ? 'Connecting...' : 'Join'}
-              </button>
-              <button
-                onClick={handleCreateRequest}
-                disabled={isLoading}
-                className="bg-white text-black p-[10px] text-lg font-bold rounded-[4px] active:scale-95 flex-1 transition-transform whitespace-nowrap disabled:opacity-70 disabled:scale-100"
-              >
-                {isLoading && action === 'create' ? 'Connecting...' : 'New game'}
-              </button>
+               <button
+                 onClick={handleJoinRequest}
+                 disabled={isLoading}
+                 className="bg-[#433D34] text-white p-[10px] text-lg font-bold rounded-[4px] active:scale-95 flex-1 transition-transform whitespace-nowrap disabled:opacity-70 disabled:scale-100"
+               >
+                 {isLoading && action === 'join' ? 'Connecting...' : 'Join'}
+               </button>
+               <button
+                 onClick={handleCreateRequest}
+                 disabled={isLoading}
+                 className="bg-white text-black p-[10px] text-lg font-bold rounded-[4px] active:scale-95 flex-1 transition-transform whitespace-nowrap disabled:opacity-70 disabled:scale-100"
+               >
+                 {isLoading && action === 'create' ? 'Connecting...' : 'New game'}
+               </button>
             </div>
           )}
 
           {view === 'join-code' && (
             <motion.div 
-              initial={{ x: 20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              className="space-y-4"
+               initial={{ x: 20, opacity: 0 }}
+               animate={{ x: 0, opacity: 1 }}
+               className="space-y-4"
             >
-              <input
-                type="text"
-                value={code}
-                onChange={(e) => setCode(e.target.value.toUpperCase())}
-                placeholder="####"
-                maxLength={4}
-                autoComplete="off"
-                autoCorrect="off"
-                spellCheck={false}
-                inputMode="text"
-                className="w-full bg-white border-none rounded-xl p-6 text-3xl font-bold uppercase focus:ring-2 focus:ring-black/5 outline-none shadow-sm text-center tracking-[0.5em]"
-                autoFocus
-              />
-              <div className="flex gap-[10px]">
-                <button
-                  onClick={handleCodeSubmit}
-                  disabled={code.length < 4 || isLoading}
-                  className="p-[10px] bg-[#4A4138] text-white font-bold uppercase rounded-[4px] transition-all disabled:opacity-50 active:scale-95 flex-1"
-                >
+               <input
+                 type="text"
+                 value={code}
+                 onChange={(e) => setCode(e.target.value.toUpperCase())}
+                 placeholder="####"
+                 maxLength={4}
+                 autoComplete="off"
+                 autoCorrect="off"
+                 spellCheck={false}
+                 inputMode="text"
+                 className="w-full bg-white border-none rounded-xl p-6 text-3xl font-bold uppercase focus:ring-2 focus:ring-black/5 outline-none shadow-sm text-center tracking-[0.5em]"
+                 autoFocus
+               />
+               <div className="flex gap-[10px]">
+                 <button
+                   onClick={handleCodeSubmit}
+                   disabled={code.length < 4 || isLoading}
+                   className="p-[10px] bg-[#433D34] text-white font-bold uppercase rounded-[4px] transition-all disabled:opacity-50 active:scale-95 flex-1"
+                 >
                   {isLoading ? '...' : 'Join'}
                 </button>
                 <button
