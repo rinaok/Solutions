@@ -136,7 +136,7 @@ export function CreatorRoom() {
 
   if (isPrep) {
     return (
-      <div className="h-full flex flex-col items-center justify-center p-8 bg-[#AE8166] text-center min-h-screen">
+      <div className="h-full flex flex-col items-center justify-center p-8 bg-transparent text-center min-h-screen">
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -168,7 +168,7 @@ export function CreatorRoom() {
 
   if (isDone) {
     return (
-      <div className="h-full flex flex-col bg-[#AE8166] overflow-hidden">
+      <div className="h-full flex flex-col bg-transparent overflow-hidden">
         {/* Progress Bar Header */}
         <div className="w-full h-8 bg-white p-2">
           <div className="h-full bg-[#ED5F69]/20 rounded-full overflow-hidden">
@@ -226,7 +226,7 @@ export function CreatorRoom() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-[#AE8166] overflow-hidden">
+    <div className="h-full flex flex-col bg-transparent overflow-hidden">
       {/* Progress Bar Header */}
       <div className="w-full h-8 bg-white p-2">
         <div className="h-full bg-[#ED5F69]/20 rounded-full overflow-hidden">

@@ -71,7 +71,7 @@ export function PresentationRoom() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-[#AE8166] overflow-hidden relative p-8">
+    <div className="h-full flex flex-col bg-transparent overflow-hidden relative p-8">
       {/* Avatar Section */}
       <div className="absolute top-4 left-4 z-10 flex flex-col items-center">
         <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-xl border-4 border-white overflow-hidden">

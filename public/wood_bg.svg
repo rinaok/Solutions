@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 2000" width="100%" height="100%" preserveAspectRatio="none">
+  <!-- Solid background -->
+  <rect width="1000" height="2000" fill="#AE8166"/>
+  
+  <!-- Subtle lighter highlights for secondary depth -->
+  <g fill="none" stroke="#BB9276" stroke-linecap="round" opacity="0.25">
+    <path d="M 120,-80 C 270,70 730,70 880,-80" stroke-width="22"/>
+    <path d="M -50,190 C 150,160 350,260 500,260 C 650,260 850,160 1050,190" stroke-width="25"/>
+    <path d="M -50,400 C 100,400 190,450 190,530 C 190,610 100,660 -50,660" stroke-width="28"/>
+    <path d="M -50,900 C 300,900 400,770 600,770 C 800,770 900,905 1050,870" stroke-width="26"/>
+    <path d="M -50,1200 C 250,1250 450,1100 650,1100 C 850,1100 950,1250 1050,1170" stroke-width="26"/>
+    <path d="M -50,1430 C 400,1400 600,1550 1050,1400" stroke-width="28"/>
+    <path d="M -50,1800 C 150,1830 350,1680 550,1730 C 750,1780 900,1930 1050,1830" stroke-width="30"/>
+  </g>
+
+  <!-- Dark wood grain lines -->
+  <g fill="none" stroke="#946E54" stroke-linecap="round">
+    <!-- Top concentric loops -->
+    <path d="M 155,-50 C 300,100 700,100 845,-50" stroke-width="26" opacity="0.75"/>
+    <path d="M 235,-50 C 350,55 650,55 765,-50" stroke-width="19" opacity="0.65"/>
+    <path d="M 315,-50 C 400,25 600,25 685,-50" stroke-width="13" opacity="0.55"/>
+
+    <!-- Upper sagging waves -->
+    <path d="M -50,145 C 150,125 350,215 500,215 C 650,215 850,125 1050,145" stroke-width="24" opacity="0.8"/>
+    <path d="M -50,225 C 150,195 350,295 500,295 C 650,295 850,195 1050,225" stroke-width="28" opacity="0.85"/>
+
+    <!-- Left loop knot/whorl -->
+    <path d="M -50,375 C 120,375 220,435 220,530 C 220,625 120,685 -50,685" stroke-width="32" opacity="0.8"/>
+    <path d="M -50,415 C 80,415 160,465 160,530 C 160,595 80,645 -50,645" stroke-width="24" opacity="0.7"/>
+    <path d="M -50,455 C 40,455 100,485 100,530 C 100,575 40,605 -50,605" stroke-width="16" opacity="0.6"/>
+    <path d="M -50,485 C 10,485 50,505 50,530 C 50,555 10,575 -50,575" stroke-width="10" opacity="0.5"/>
+
+    <!-- Right-side wave wrapping around the whorl -->
+    <path d="M 1050,395 C 700,395 400,495 350,530 C 300,565 300,695 1050,695" stroke-width="24" opacity="0.75"/>
+    <path d="M 1050,445 C 750,445 450,525 410,545 C 380,565 380,645 1050,645" stroke-width="18" opacity="0.65"/>
+
+    <!-- Mid-body cascade waves -->
+    <path d="M -50,775 C 300,775 400,645 600,645 C 800,645 900,780 1050,745" stroke-width="22" opacity="0.7"/>
+    <path d="M -50,855 C 300,855 400,725 600,725 C 800,725 900,860 1050,825" stroke-width="26" opacity="0.75"/>
+    <path d="M -50,935 C 300,935 400,805 600,805 C 800,805 900,940 1050,905" stroke-width="30" opacity="0.8"/>
+
+    <!-- Lower-middle S-curved ribbons -->
+    <path d="M -50,1045 C 250,1095 450,945 650,945 C 850,945 950,1095 1050,1015" stroke-width="24" opacity="0.75"/>
+    <path d="M -50,1145 C 250,1195 450,1045 650,1045 C 850,1045 950,1195 1050,1115" stroke-width="28" opacity="0.8"/>
+
+    <!-- Gentle waves/side curves -->
+    <path d="M -50,1275 C 400,1245 600,1395 1050,1245" stroke-width="24" opacity="0.75"/>
+    <path d="M -50,1375 C 400,1345 600,1495 1050,1345" stroke-width="28" opacity="0.8"/>
+    <path d="M -50,1475 C 400,1445 600,1595 1050,1445" stroke-width="26" opacity="0.75"/>
+
+    <!-- Bottom sweeping waves -->
+    <path d="M -50,1615 C 150,1645 350,1495 550,1545 C 750,1595 900,1745 1050,1645" stroke-width="24" opacity="0.75"/>
+    <path d="M -50,1735 C 150,1765 350,1615 550,1665 C 750,1715 900,1865 1050,1765" stroke-width="28" opacity="0.8"/>
+    <path d="M -50,1855 C 150,1885 350,1735 550,1785 C 750,1835 900,1985 1050,1885" stroke-width="32" opacity="0.85"/>
+    <path d="M -50,1955 C 150,1985 350,1835 550,1885 C 750,1935 900,2085 1050,1985" stroke-width="24" opacity="0.65"/>
+  </g>
+</svg>

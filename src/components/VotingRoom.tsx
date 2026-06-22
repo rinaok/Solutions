@@ -34,7 +34,7 @@ export function VotingRoom() {
     const hostCharacter = CHARACTERS.find(c => c.id === host?.avatar);
 
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-[#AE8166] overflow-hidden">
+      <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-transparent overflow-hidden">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -107,7 +107,7 @@ export function VotingRoom() {
   };
 
   return (
-    <div className="h-full flex flex-col items-center justify-between p-4 md:p-8 bg-[#AE8166] overflow-hidden">
+    <div className="h-full flex flex-col items-center justify-between p-4 md:p-8 bg-transparent overflow-hidden">
       <div className="pt-6 md:pt-12">
         <h2 className="text-[#A1A1A1] text-2xl font-black uppercase text-center tracking-tighter">
           Swipe to see all

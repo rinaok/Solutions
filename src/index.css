@@ -29,7 +29,11 @@
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
     color: #4A4139;
-    @apply bg-[#AE8166];
+    background-color: #AE8166;
+    background-image: url('/wood_bg.svg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
   }
 
   #root {

@@ -116,7 +116,7 @@ export function AwardRoom() {
 
   if (hasVotedCurrent) {
     return (
-      <div className="h-full flex flex-col items-center justify-center bg-[#AE8166] p-8 space-y-8 min-h-screen">
+      <div className="h-full flex flex-col items-center justify-center bg-transparent p-8 space-y-8 min-h-screen">
         {/* Progress header dots */}
         <div className="flex gap-[6px] justify-center items-center">
           {prizes.map((_, idx) => (
@@ -187,7 +187,7 @@ export function AwardRoom() {
 
   // Voting Choices Screen
   return (
-    <div className="h-full flex flex-col bg-[#AE8166] min-h-screen overflow-x-hidden">
+    <div className="h-full flex flex-col bg-transparent min-h-screen overflow-x-hidden">
       <div className="flex-1 flex flex-col items-center p-8 space-y-6 overflow-y-auto">
         {/* Progress header dots */}
         <div className="flex gap-[6px] justify-center items-center mt-2">

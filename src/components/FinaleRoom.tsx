@@ -35,7 +35,7 @@ export function FinaleRoom() {
   }, []);
 
   return (
-    <div className="h-full flex flex-col items-center bg-[#AE8166] overflow-y-auto relative p-8">
+    <div className="h-full flex flex-col items-center bg-transparent overflow-y-auto relative p-8">
       <div className="flex-1 w-full max-w-sm flex flex-col pt-12 pb-24">
         {solutions.filter(s => s.prize || (s.prizes && s.prizes.length > 0)).map((sol, i) => {
           const player = players.find(p => p.id === sol.playerId);
