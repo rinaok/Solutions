@@ -54,21 +54,21 @@ export function WaitingRoom() {
 
       <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2">
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-8">
             {players.map((p, i) => (
               <motion.div
                 key={p.id}
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: i * 0.1 }}
-                className="flex items-center gap-4 bg-white rounded-full p-4 relative overflow-hidden shadow-md"
+                className="flex flex-col items-center gap-2"
               >
-                <div className="w-16 h-16 bg-white flex items-center justify-center rounded-full overflow-hidden relative shadow-inner">
+                <div className="w-24 h-24 flex items-center justify-center relative transition-all duration-300 hover:scale-115">
                   {p.avatar ? (
                     <>
                       <img 
                         src={CHARACTERS.find(c => c.id === p.avatar)?.src} 
-                        className="w-14 h-14 object-contain relative z-10"
+                        className="w-24 h-24 object-contain relative z-10"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.style.display = 'none';
@@ -79,16 +79,17 @@ export function WaitingRoom() {
                           }
                         }}
                       />
-                      <div className="mini-fallback hidden text-3xl">
+                      <div className="mini-fallback hidden text-5xl">
                         {CHARACTERS.find(c => c.id === p.avatar)?.emoji}
                       </div>
                     </>
                   ) : (
-                    <div className="w-full h-full bg-black text-white flex items-center justify-center font-black text-2xl">
+                    <div className="w-20 h-20 bg-[#433D34] text-white flex items-center justify-center font-black text-3xl rounded-xl">
                       {p.name[0]}
                     </div>
                   )}
                 </div>
+                <span className="text-sm font-extrabold uppercase text-[#433D34] tracking-wider bg-white/25 px-3 py-1 rounded-sm shadow-sm">{p.name}</span>
               </motion.div>
             ))}
           </div>

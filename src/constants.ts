@@ -5,6 +5,7 @@ export const CHARACTERS = [
   { id: 'char4', src: '/characters/character_4.png', emoji: '🐸', color: 'bg-[#4CAF50]' },
   { id: 'char5', src: '/characters/character_5.png', emoji: '🦈', color: 'bg-[#4A90E2]' },
   { id: 'char6', src: '/characters/character_6.png', emoji: '🐙', color: 'bg-[#9B51E0]' },
+  { id: 'char7', src: '/characters/character_7.png', emoji: '🐻', color: 'bg-[#8B5A2B]' },
 ];
 
 export const AWARDS = [
@@ -13,5 +14,6 @@ export const AWARDS = [
   { id: 'p3', name: 'The Most Realistic', src: '/awards/award_3.png', fallbackEmoji: '😎' },
   { id: 'p4', name: 'The Trendiest', src: '/awards/award_4.png', fallbackEmoji: '📐' },
   { id: 'p5', name: 'The Most Expensive', src: '/awards/award_5.png', fallbackEmoji: '💰' },
+  { id: 'p6', name: 'The Ultimate Masterpiece', src: '/awards/award_6.png', fallbackEmoji: '🏆' },
 ];
 

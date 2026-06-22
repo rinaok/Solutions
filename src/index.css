@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Lilita+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Lilita+One&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -31,7 +31,7 @@
     -webkit-tap-highlight-color: transparent;
     color: #433D34;
     background-color: #AE8166;
-    background-image: url('/wood_bg.svg');
+    background-image: url('./wood_bg.svg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -42,4 +42,11 @@
     height: 100%;
     overflow: hidden;
   }
+}
+
+.subtitle-wood-game {
+  font-family: "Inter", sans-serif !important;
+  font-weight: 300 !important;
+  font-size: 16px !important;
+  color: #433C34 !important;
 }

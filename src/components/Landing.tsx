@@ -131,12 +131,12 @@ export function Landing() {
   };
 
   return (
-    <div className="h-full flex flex-col items-center justify-end p-4 md:p-8 bg-transparent overflow-hidden relative">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 bg-transparent overflow-y-auto relative w-full">
 
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="relative z-10 w-full max-w-sm pb-16"
+        className="relative z-10 w-full max-w-sm py-8"
       >
         <div className="flex flex-col">
           {(view === 'landing' || view === 'join-code') && (
@@ -144,7 +144,7 @@ export function Landing() {
               <h1 className="text-6xl font-black tracking-tighter leading-none mb-2">
                 Solutions
               </h1>
-              <p className="text-lg font-medium tracking-tight opacity-60">A game about creating</p>
+              <p className="subtitle-wood-game tracking-tight">A game about creating</p>
             </div>
           )}
 
@@ -208,7 +208,7 @@ export function Landing() {
             <motion.div 
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              className="flex flex-col items-center gap-6"
+              className="flex flex-col items-center gap-4"
             >
               <div className="w-full bg-white px-2 py-1 shadow-sm">
                 <input
@@ -224,12 +224,11 @@ export function Landing() {
                 />
               </div>
 
-              <div className="relative w-56 h-56 flex items-center justify-center">
-                <div className="absolute inset-0 bg-white rounded-full shadow-lg" />
+              <div className="relative w-32 h-32 flex items-center justify-center">
                 <img 
                   src={CHARACTERS[selectedChar].src} 
                   alt="Avatar"
-                  className="w-40 h-40 object-contain relative z-10 transition-transform duration-300"
+                  className="w-32 h-32 object-contain relative z-10 transition-transform duration-300 filter drop-shadow-md"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.style.display = 'none';
@@ -240,7 +239,7 @@ export function Landing() {
                     }
                   }}
                 />
-                <div className="fallback-emoji absolute inset-0 flex items-center justify-center text-7xl hidden">
+                <div className="fallback-emoji absolute inset-0 flex items-center justify-center text-6xl hidden">
                   {CHARACTERS[selectedChar].emoji}
                 </div>
               </div>
@@ -248,31 +247,24 @@ export function Landing() {
               <button
                 onClick={handleFinalSubmit}
                 disabled={!name || isLoading}
-                className="bg-[#ED5F69] text-white p-[10px] text-2xl font-black uppercase rounded-[4px] shadow-lg hover:brightness-105 active:scale-95 transition-all disabled:opacity-50"
+                className="bg-[#ED5F69] text-[#FFFBFB] py-2 px-6 text-lg font-black uppercase rounded-[4px] shadow-lg hover:brightness-105 active:scale-95 transition-all disabled:opacity-50"
               >
                 {isLoading ? '...' : (action === 'create' ? 'Create' : 'Join')}
               </button>
 
-              <button
-                onClick={() => setView(action === 'create' ? 'landing' : 'join-code')}
-                className="text-black/40 font-bold uppercase text-xs hover:text-black/60 transition-colors"
-              >
-                Go Back
-              </button>
-
-              <div className="grid grid-cols-3 gap-3 pt-4">
+              <div className="grid grid-cols-3 gap-5 pt-4 justify-center justify-items-center">
                 {CHARACTERS.map((char, index) => (
                   <button
                     key={char.id}
                     onClick={() => setSelectedChar(index)}
-                    className={`w-14 h-14 rounded-full flex items-center justify-center overflow-hidden transition-all transform active:scale-90 ${
-                      selectedChar === index ? 'ring-4 ring-black/10 scale-110' : 'bg-[#737373] hover:bg-[#525252]'
-                    }`}
+                    className={`w-18 h-18 flex items-center justify-center transition-all transform active:scale-90 ${
+                      selectedChar === index ? 'scale-125 filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.15)]' : 'opacity-70 hover:opacity-100 hover:scale-110'
+                    } ${index === 6 ? 'col-start-2' : ''}`}
                   >
-                    <div className={`w-full h-full flex items-center justify-center ${selectedChar === index ? 'bg-white' : ''}`}>
+                    <div className="w-full h-full flex items-center justify-center">
                       <img 
                         src={char.src} 
-                        className="w-10 h-10 object-contain"
+                        className="w-16 h-16 object-contain"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.style.display = 'none';
@@ -283,7 +275,7 @@ export function Landing() {
                           }
                         }}
                       />
-                      <div className="mini-fallback text-2xl hidden flex items-center justify-center">
+                      <div className="mini-fallback text-3xl hidden flex items-center justify-center">
                         {char.emoji}
                       </div>
                     </div>
