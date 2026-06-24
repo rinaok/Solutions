@@ -146,7 +146,7 @@ export function FinaleRoom() {
                 </div>
 
                 {/* SVG Drawing Covering entire Notebook Width & Height */}
-                <svg viewBox="0 0 340 450" preserveAspectRatio="none" className="w-full h-full absolute inset-0 z-0 pointer-events-none">
+                <svg viewBox="0 0 340 450" className="w-full h-full absolute inset-0 z-0 pointer-events-none">
                   {canvasData.lines.map((line: any, j: number) => (
                     <polyline
                       key={j}
@@ -281,7 +281,7 @@ export function FinaleRoom() {
                     </h2>
                   </div>
 
-                  <svg viewBox="0 0 340 450" preserveAspectRatio="none" className="w-full h-full absolute inset-0 z-0 pointer-events-none">
+                  <svg viewBox="0 0 340 450" className="w-full h-full absolute inset-0 z-0 pointer-events-none">
                     {canvasData.lines.map((line: any, j: number) => (
                       <polyline
                         key={j}
