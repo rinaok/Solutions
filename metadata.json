@@ -2,5 +2,5 @@
   "name": "Solutions",
   "description": "A playful multiplayer game where players choose problems, sketch creative solutions in a shared digital notebook, and award the most innovative ideas.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

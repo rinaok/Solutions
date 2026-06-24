@@ -48,6 +48,66 @@ function StickerImage({ src, x, y, isDone, onDragEnd }: any) {
   );
 }
 
+function ToolButton({ 
+  type, 
+  color, 
+  leadColor, 
+  imgSrc, 
+  alt, 
+  isActive, 
+  onClick, 
+  className 
+}: { 
+  type: 'pencil' | 'eraser'; 
+  color?: string; 
+  leadColor?: string; 
+  imgSrc: string; 
+  alt: string; 
+  isActive: boolean; 
+  onClick: () => void; 
+  className: string; 
+}) {
+  const [hasError, setHasError] = useState(false);
+
+  return (
+    <button
+      onClick={onClick}
+      className={`${className} transition-all duration-300 focus:outline-none cursor-pointer ${
+        isActive 
+          ? 'scale-110 drop-shadow-[0_12px_24px_rgba(0,0,0,0.35)] brightness-110 z-10' 
+          : 'opacity-70 hover:opacity-100 hover:scale-105'
+      }`}
+    >
+      {hasError || !imgSrc ? (
+        type === 'eraser' ? (
+          <svg viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full pointer-events-none">
+            <rect x="5" y="10" width="70" height="40" rx="8" fill="#F48FB1" />
+            <rect x="40" y="10" width="35" height="40" rx="8" fill="#F06292" />
+            <rect x="35" y="10" width="10" height="40" fill="#E91E63" opacity="0.3" />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 160 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full pointer-events-none">
+            <rect x="5" y="10" width="15" height="20" rx="3" fill="#F48FB1" />
+            <rect x="18" y="10" width="10" height="20" fill="#B0BEC5" />
+            <rect x="28" y="10" width="90" height="20" fill={color || '#FFD54F'} />
+            <rect x="28" y="10" width="90" height="5" fill="#FFFFFF" opacity={isActive ? 0.35 : 0.2} />
+            <rect x="28" y="25" width="90" height="5" fill="#000000" opacity={isActive ? 0.2 : 0.1} />
+            <path d="M118 10 L143 20 L118 30 Z" fill="#FFE082" />
+            <path d="M135 16.8 L143 20 L135 23.2 Z" fill={leadColor || '#433D34'} />
+          </svg>
+        )
+      ) : (
+        <img 
+          src={imgSrc} 
+          onError={() => setHasError(true)} 
+          className="w-full h-full object-contain pointer-events-none" 
+          alt={alt} 
+        />
+      )}
+    </button>
+  );
+}
+
 export function CreatorRoom() {
   const { room, players, user } = useGame();
   const [tool, setTool] = useState<'pencil' | 'eraser'>('pencil');
@@ -329,11 +389,6 @@ export function CreatorRoom() {
             transition={{ ease: 'linear' }}
           />
         </div>
-        
-        {/* Prompt Header */}
-        <p className="text-white/80 text-[13px] font-black uppercase tracking-widest text-center mt-1">
-          PROMPT: {room?.selectedPrompt}
-        </p>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-between p-4 gap-2 max-w-4xl mx-auto w-full overflow-y-auto">
@@ -356,13 +411,91 @@ export function CreatorRoom() {
         {/* Central Creation Area */}
         <div className="relative w-[340px] h-[480px] mx-auto flex flex-col items-center justify-start mt-2 select-none">
           
-          {/* Paper with Stickers trigger (Corner) */}
-          <div 
-            onClick={() => setIsPaperOpen(true)}
-            className="absolute left-[-22px] top-[100px] w-14 h-40 cursor-pointer z-20 hover:scale-105 active:scale-95 transition-transform"
+          {/* Peeking / Centered Paper with Stickers */}
+          <motion.div
+            animate={{
+              x: isPaperOpen ? 10 : -85,
+              y: isPaperOpen ? 15 : 70,
+              width: isPaperOpen ? 320 : 150,
+              height: isPaperOpen ? 430 : 330,
+              rotate: isPaperOpen ? 0 : 12,
+            }}
+            transition={{ type: 'spring', stiffness: 220, damping: 25 }}
+            onClick={() => {
+              if (!isPaperOpen) setIsPaperOpen(true);
+            }}
+            className={`absolute rounded-xl shadow-2xl z-30 overflow-hidden bg-white border border-black/10 flex flex-col items-center select-none ${isPaperOpen ? 'cursor-default pointer-events-auto' : 'hover:scale-105 active:scale-95 transition-transform cursor-pointer'}`}
+            style={{
+              backgroundImage: "radial-gradient(circle, #ffffff 0%, #f7f6f4 100%)",
+              transformOrigin: "center center",
+            }}
           >
-            <img src="/drawing/paper.png" className="w-full h-full object-contain" alt="Paper sticker drawer" />
-          </div>
+            {/* The custom paper folder texture watermark */}
+            <div className="absolute inset-0 pointer-events-none opacity-10 mix-blend-multiply bg-cover" style={{ backgroundImage: "url('/drawing/paper.png')" }} />
+            
+            {/* Inside the paper (rendered only when open) */}
+            {isPaperOpen ? (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="w-full h-full p-6 flex flex-col items-center relative animate-fade-in"
+                onClick={(e) => e.stopPropagation()} // Prevent closing when clicking content
+              >
+                {/* Hand-drawn style title */}
+                <h3 className="text-[#433D34] text-2xl font-black uppercase tracking-tight mb-6 mt-2 italic">Choose Stickers</h3>
+                
+                {/* Grid of stickers */}
+                <div className="grid grid-cols-2 gap-6 w-full justify-items-center max-h-[260px] overflow-y-auto px-2">
+                  {[1, 2, 3, 4, 5].map((num) => {
+                    const stickerSrc = `/drawing/sticker_${num}.png`;
+                    return (
+                      <motion.button
+                        key={num}
+                        whileHover={{ scale: 1.1, rotate: 3 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => {
+                          setStickers([
+                            ...stickers,
+                            {
+                              id: Date.now().toString() + '_' + num,
+                              src: stickerSrc,
+                              x: 142, 
+                              y: 192  
+                            }
+                          ]);
+                          setIsPaperOpen(false);
+                        }}
+                        className="w-20 h-20 p-3 rounded-2xl bg-white/60 border border-[#433D34]/10 shadow-md hover:shadow-lg flex items-center justify-center cursor-pointer relative group overflow-hidden"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <img src={stickerSrc} className="w-full h-full object-contain relative z-10" alt={`Sticker ${num}`} />
+                      </motion.button>
+                    );
+                  })}
+                </div>
+
+                {/* Close button at the bottom of the paper sheet */}
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setIsPaperOpen(false)}
+                  className="mt-auto bg-[#433D34] text-white py-2 px-8 rounded-full text-xs font-black uppercase shadow-md hover:bg-[#342f28] transition-colors cursor-pointer"
+                >
+                  Close
+                </motion.button>
+              </motion.div>
+            ) : (
+              // When closed, render the peeking graphics so it's clean and rotated
+              <div className="w-full h-full relative flex items-center justify-end pr-4">
+                <img 
+                  src="/drawing/paper.png" 
+                  className="w-full h-full object-contain select-none pointer-events-none transform -rotate-12 scale-110" 
+                  alt="Paper drawer" 
+                />
+              </div>
+            )}
+          </motion.div>
 
           {/* Canvas Card (Notebook) */}
           <div 
@@ -445,21 +578,62 @@ export function CreatorRoom() {
             )}
           </div>
 
-          {/* Pencil Button lying diagonally */}
-          <button
-            onClick={() => setTool('pencil')}
-            className={`absolute left-0 bottom-4 w-44 h-12 transform -rotate-6 transition-all duration-300 focus:outline-none cursor-pointer ${tool === 'pencil' ? 'scale-110 drop-shadow-[0_12px_24px_rgba(0,0,0,0.3)] brightness-110' : 'opacity-70 hover:opacity-100 hover:scale-105'}`}
-          >
-            <img src="/drawing/pencil.png" className="w-full h-full object-contain pointer-events-none" alt="Pencil tool" />
-          </button>
+          {/* Standard Pencil */}
+          <ToolButton
+            type="pencil"
+            color="#FFD54F"
+            leadColor="#433D34"
+            imgSrc="/drawing/pencil.png"
+            alt="Pencil tool"
+            isActive={tool === 'pencil' && color === '#433D34'}
+            onClick={() => {
+              setTool('pencil');
+              setColor('#433D34');
+            }}
+            className="absolute left-[-8px] bottom-4 w-28 h-10 transform -rotate-12"
+          />
 
-          {/* Eraser Button lying diagonally */}
-          <button
-            onClick={() => setTool('eraser')}
-            className={`absolute right-2 bottom-0 w-20 h-16 transform rotate-12 transition-all duration-300 focus:outline-none cursor-pointer ${tool === 'eraser' ? 'scale-115 drop-shadow-[0_12px_24px_rgba(0,0,0,0.3)] brightness-110' : 'opacity-70 hover:opacity-100 hover:scale-105'}`}
-          >
-            <img src="/drawing/eraser.png" className="w-full h-full object-contain pointer-events-none" alt="Eraser tool" />
-          </button>
+          {/* Green Pencil */}
+          <ToolButton
+            type="pencil"
+            color="#4CAF50"
+            leadColor="#2E7D32"
+            imgSrc="/drawing/pencil_green.png"
+            alt="Green pencil tool"
+            isActive={tool === 'pencil' && color === '#4CAF50'}
+            onClick={() => {
+              setTool('pencil');
+              setColor('#4CAF50');
+            }}
+            className="absolute left-[80px] bottom-5 w-28 h-10 transform -rotate-4"
+          />
+
+          {/* Red Pencil */}
+          <ToolButton
+            type="pencil"
+            color="#ED5F69"
+            leadColor="#C62828"
+            imgSrc="/drawing/pencil_red.png"
+            alt="Red pencil tool"
+            isActive={tool === 'pencil' && color === '#ED5F69'}
+            onClick={() => {
+              setTool('pencil');
+              setColor('#ED5F69');
+            }}
+            className="absolute left-[168px] bottom-3 w-28 h-10 transform rotate-6"
+          />
+
+          {/* Eraser */}
+          <ToolButton
+            type="eraser"
+            imgSrc="/drawing/eraser.png"
+            alt="Eraser tool"
+            isActive={tool === 'eraser'}
+            onClick={() => {
+              setTool('eraser');
+            }}
+            className="absolute right-[-8px] bottom-1 w-16 h-12 transform rotate-12"
+          />
         </div>
 
         {/* Footer Submit Button */}
@@ -476,63 +650,16 @@ export function CreatorRoom() {
         )}
       </div>
 
-      {/* Paper Overlay modal for stickers */}
+      {/* Backdrop dimming overlay */}
       <AnimatePresence>
         {isPaperOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            animate={{ opacity: 0.5 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black z-25 backdrop-blur-[2px] pointer-events-auto"
             onClick={() => setIsPaperOpen(false)}
-          >
-            <motion.div 
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="bg-white rounded-3xl shadow-2xl p-6 max-w-sm w-full border border-black/5 flex flex-col items-center relative"
-              onClick={(e) => e.stopPropagation()}
-              style={{ 
-                backgroundImage: "radial-gradient(circle, #ffffff 0%, #f4f4f4 100%)"
-              }}
-            >
-              <h3 className="text-[#433D34] text-2xl font-black uppercase tracking-tight mb-4">Choose Stickers</h3>
-              
-              <div className="grid grid-cols-3 gap-4 w-full justify-items-center mb-6">
-                {[1, 2, 3, 4, 5].map((num) => {
-                  const stickerSrc = `/drawing/sticker_${num}.png`;
-                  return (
-                    <button
-                      key={num}
-                      onClick={() => {
-                        // Add image sticker to canvas and close
-                        setStickers([
-                          ...stickers,
-                          {
-                            id: Date.now().toString() + '_' + num,
-                            src: stickerSrc,
-                            x: 140, // Centered inside the 284 stage width
-                            y: 192  // Centered inside the 384 stage height
-                          }
-                        ]);
-                        setIsPaperOpen(false);
-                      }}
-                      className="w-16 h-16 p-2 rounded-2xl hover:scale-110 active:scale-90 transition-transform bg-white/50 border border-black/5 shadow-sm hover:shadow-md flex items-center justify-center cursor-pointer"
-                    >
-                      <img src={stickerSrc} className="w-full h-full object-contain" alt={`Sticker ${num}`} />
-                    </button>
-                  );
-                })}
-              </div>
-
-              <button
-                onClick={() => setIsPaperOpen(false)}
-                className="bg-[#433D34] text-white py-2 px-6 rounded-lg text-sm font-black uppercase shadow-md hover:bg-[#342f28] transition-colors cursor-pointer"
-              >
-                Close
-              </button>
-            </motion.div>
-          </motion.div>
+          />
         )}
       </AnimatePresence>
     </div>
