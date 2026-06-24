@@ -60,14 +60,6 @@ export function FinaleRoom() {
       // Graceful fallback if no solution is found for this prize
       return (
         <div className="min-h-screen flex flex-col justify-between bg-transparent overflow-hidden relative py-4 px-6">
-          <div className="text-center pt-2 pb-1 space-y-1">
-            <span className="text-[#433D34]/60 font-black uppercase text-xs tracking-widest block">
-              Award Reveal {revealIndex + 1} of {prizes.length}
-            </span>
-            <h1 className="text-3xl font-black uppercase tracking-tighter italic text-[#433D34]">
-              {currentPrize.name}
-            </h1>
-          </div>
           <div className="flex-1 flex flex-col items-center justify-center">
             <div className="text-center p-8 bg-white/20 backdrop-blur-sm rounded-lg border border-black/5 max-w-sm">
               <Trophy className="w-16 h-16 text-amber-500/40 mx-auto mb-4" />
@@ -106,15 +98,6 @@ export function FinaleRoom() {
 
     return (
       <div className="min-h-screen flex flex-col justify-between bg-transparent overflow-hidden relative py-4 px-6">
-        <div className="text-center pt-2 pb-1 space-y-1">
-          <span className="text-[#433D34]/60 font-black uppercase text-xs tracking-widest block">
-            Award Reveal {revealIndex + 1} of {prizes.length}
-          </span>
-          <h1 className="text-3xl font-black uppercase tracking-tighter italic text-[#433D34]">
-            {currentPrize.name}
-          </h1>
-        </div>
-
         {/* Centered winner single display */}
         <div className="flex-1 flex flex-col items-center justify-center py-4 w-full">
           <AnimatePresence mode="wait">
@@ -132,11 +115,8 @@ export function FinaleRoom() {
                   {/* Avatar */}
                   <img src={character?.src} className="w-20 h-20 object-contain drop-shadow-md animate-bounce" style={{ animationDuration: '3.5s' }} alt="Winner Avatar" />
                   
-                  {/* Trophy & Brushes/Rulers decoration */}
+                  {/* Trophy */}
                   <div className="relative w-16 h-20 flex items-end justify-center pb-1">
-                    <div className="absolute top-1 left-2 w-3 h-14 bg-[#F4A7C1] rounded-full border border-white transform rotate-[15deg] shadow-sm" />
-                    <div className="absolute top-0 left-6 w-3 h-16 bg-[#E9535E] rounded-full border border-white transform rotate-[35deg] shadow-sm" />
-                    
                     <div className="relative z-10 w-12 h-12 flex items-center justify-center">
                       <AwardImage 
                         src={currentPrize.src || "/awards/award_1.png"}
@@ -151,13 +131,6 @@ export function FinaleRoom() {
                 <span className="text-[#433D34] font-black uppercase text-xs tracking-tight mt-1">
                   {player?.name}'s Solution
                 </span>
-
-                {/* Won Prize Badge */}
-                <div className="flex flex-wrap gap-1 mt-1">
-                  <span className="bg-[#433D34]/10 text-[#433D34] text-[9px] font-black uppercase px-2 py-0.5 rounded-full border border-[#433D34]/15">
-                    🏆 {currentPrize.name}
-                  </span>
-                </div>
               </div>
 
               {/* Drawing Card */}
