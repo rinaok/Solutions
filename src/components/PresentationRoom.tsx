@@ -71,24 +71,35 @@ export function PresentationRoom() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-transparent overflow-hidden relative p-8">
-      {/* Avatar Section */}
-      <div className="absolute top-4 left-4 z-10 flex flex-col items-center">
-        <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-xl border-4 border-white overflow-hidden">
-          <img src={character?.src} className="w-14 h-14 object-contain" />
-        </div>
+    <div className="h-full flex flex-col bg-transparent overflow-hidden relative pt-12 p-8">
+      {/* Progress Bar Header */}
+      <div className="absolute top-0 left-0 right-0 h-5 bg-white overflow-hidden z-20">
+        <motion.div 
+          className="h-full"
+          initial={{ width: '100%' }}
+          animate={{ width: `${(timeLeft / 120) * 100}%` }}
+          transition={{ ease: 'linear' }}
+          style={{ 
+            backgroundColor: brandColor 
+          }}
+        />
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center gap-3 max-w-md mx-auto w-full pt-20">
+      {/* Avatar Section - Character outside the circle */}
+      <div className="absolute top-8 left-6 z-10 flex flex-col items-center">
+        <img src={character?.src} className="w-20 h-20 object-contain drop-shadow-lg" />
+      </div>
+
+      <div className="flex-1 flex flex-col items-center justify-center gap-3 max-w-xl mx-auto w-full pt-20">
         {/* Presenter Text */}
-        <div className="text-center translate-x-4">
-          <p className="text-[#A1A1A1] font-black uppercase text-xs tracking-tight mb-1">
+        <div className="text-center">
+          <p className="text-[#433D34]/70 font-black uppercase text-xs tracking-tight mb-1">
             {presenter?.name}'s Solution
           </p>
         </div>
 
         {/* Title Card */}
-        <div className="bg-white py-2 px-8 rounded-sm shadow-xl mb-2 translate-x-4">
+        <div className="bg-white py-2 px-8 rounded-sm shadow-xl mb-2">
           <h2 className="text-2xl font-black uppercase tracking-tight" style={{ color: brandColor }}>
             {solution?.name || 'Untitled'}
           </h2>
@@ -96,7 +107,7 @@ export function PresentationRoom() {
 
         {/* Drawing Card */}
         <div 
-          className="w-[85%] aspect-[3/4] max-h-[50vh] rounded-lg shadow-2xl overflow-hidden relative p-4 border-2 border-white bg-cover bg-center"
+          className="w-full max-w-[440px] aspect-[3/4] max-h-[58vh] rounded-lg shadow-2xl overflow-hidden relative p-0 border-2 border-white bg-cover bg-center"
           style={{ backgroundImage: "url('/backgrounds/notebook.png')" }}
         >
           <svg viewBox="0 0 340 450" className="w-full h-full">
@@ -128,32 +139,18 @@ export function PresentationRoom() {
         </div>
       </div>
 
-      {/* Progress Bar & Host Controls */}
-      <div className="mt-auto w-full max-w-md mx-auto space-y-6 pb-8">
-        <div className="w-full h-5 bg-white rounded-none p-0 overflow-hidden">
-          <motion.div 
-            className="h-full"
-            initial={{ width: '100%' }}
-            animate={{ width: `${(timeLeft / 120) * 100}%` }}
-            transition={{ ease: 'linear' }}
-            style={{ 
-              backgroundColor: brandColor 
-            }}
-          />
+      {/* Host Controls */}
+      {isHost && (
+        <div className="mt-auto w-full max-w-md mx-auto pb-8 flex justify-center z-10">
+          <button
+            onClick={nextPresenter}
+            style={{ backgroundColor: brandColor }}
+            className="text-white p-[10px] text-2xl font-black uppercase rounded-[4px] shadow-xl hover:brightness-105 active:scale-95 transition-all"
+          >
+            {players.findIndex(p => p.id === currentPresenterId) === players.length - 1 ? 'Finish' : 'Next'}
+          </button>
         </div>
-
-        {isHost && (
-          <div className="flex justify-center">
-            <button
-              onClick={nextPresenter}
-              style={{ backgroundColor: brandColor }}
-              className="text-white p-[10px] text-2xl font-black uppercase rounded-[4px] shadow-xl hover:brightness-105 active:scale-95 transition-all"
-            >
-              {players.findIndex(p => p.id === currentPresenterId) === players.length - 1 ? 'Finish' : 'Next'}
-            </button>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }

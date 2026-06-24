@@ -10,10 +10,10 @@ export const CHARACTERS = [
 
 export const AWARDS = [
   { id: 'p1', name: 'The Most Creative', src: '/awards/award_1.png', fallbackEmoji: '🎨' },
-  { id: 'p2', name: 'The Funniest', src: '/awards/award_2.png', fallbackEmoji: '😂' },
-  { id: 'p3', name: 'The Most Realistic', src: '/awards/award_3.png', fallbackEmoji: '😎' },
-  { id: 'p4', name: 'The Trendiest', src: '/awards/award_4.png', fallbackEmoji: '📐' },
+  { id: 'p2', name: 'The Most Dangerous', src: '/awards/award_2.png', fallbackEmoji: '😂' },
+  { id: 'p3', name: 'The Most accurate', src: '/awards/award_3.png', fallbackEmoji: '😎' },
+  { id: 'p4', name: 'The Most Ecological', src: '/awards/award_4.png', fallbackEmoji: '📐' },
   { id: 'p5', name: 'The Most Expensive', src: '/awards/award_5.png', fallbackEmoji: '💰' },
-  { id: 'p6', name: 'The Ultimate Masterpiece', src: '/awards/award_6.png', fallbackEmoji: '🏆' },
+  { id: 'p6', name: 'The Most Fashionable', src: '/awards/award_6.png', fallbackEmoji: '🏆' },
 ];
 

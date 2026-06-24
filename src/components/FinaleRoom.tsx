@@ -57,7 +57,7 @@ export function FinaleRoom() {
                 <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg border-4 border-white overflow-hidden relative z-10">
                    <img src={character?.src} className="w-12 h-12 object-contain" />
                 </div>
-                <span className="text-[#8E8E8E] font-black uppercase text-xs mt-1">{player?.name}</span>
+                <span className="text-[#433D34]/80 font-black uppercase text-xs mt-1">{player?.name}</span>
               </div>
 
               {/* Drawing Card */}
@@ -155,7 +155,7 @@ export function FinaleRoom() {
         </motion.div>
       </div>
 
-      <div className="fixed bottom-4 left-4 text-[#8E8E8E] font-black text-xs opacity-50">
+      <div className="fixed bottom-4 left-4 text-[#433D34] font-black text-xs opacity-50">
         14
       </div>
     </div>

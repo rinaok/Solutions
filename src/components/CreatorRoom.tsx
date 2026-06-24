@@ -182,7 +182,7 @@ export function CreatorRoom() {
         </div>
 
         <div className="flex-1 flex flex-col items-center p-8 space-y-12">
-          <h2 className="text-[#A1A1A1] text-xl font-black uppercase text-center max-w-[280px] leading-tight">
+          <h2 className="text-[#433D34] text-xl font-black uppercase text-center max-w-[280px] leading-tight">
             Waiting for everyone to submit their solution
           </h2>
 

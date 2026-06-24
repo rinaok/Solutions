@@ -131,7 +131,7 @@ export function Landing() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 bg-transparent overflow-y-auto relative w-full">
+    <div className="min-h-screen flex flex-col items-center justify-end p-4 md:p-8 bg-transparent overflow-y-auto relative w-full">
 
       <motion.div
         initial={{ y: 20, opacity: 0 }}

@@ -116,9 +116,9 @@ export function AwardRoom() {
 
   if (hasVotedCurrent) {
     return (
-      <div className="h-full flex flex-col items-center justify-center bg-transparent p-8 space-y-8 min-h-screen">
+      <div className="min-h-screen w-full flex flex-col items-center justify-start bg-transparent p-8 space-y-6 overflow-y-auto pb-16">
         {/* Progress header dots */}
-        <div className="flex gap-[6px] justify-center items-center">
+        <div className="flex gap-[6px] justify-center items-center mt-2">
           {prizes.map((_, idx) => (
             <div 
               key={idx} 
@@ -136,7 +136,7 @@ export function AwardRoom() {
           </h2>
         </div>
 
-        <div className="w-48 h-48 bg-white rounded-full flex items-center justify-center shadow-2xl overflow-hidden p-4 relative">
+        <div className="w-48 h-48 bg-white rounded-full flex items-center justify-center shadow-2xl overflow-hidden p-4 relative flex-shrink-0">
           <AwardImage 
             src={currentPrize.src}
             fallback={<Trophy className="w-24 h-24 text-[#ED5F69]" />}
@@ -173,7 +173,7 @@ export function AwardRoom() {
           })}
         </div>
 
-        {isHost && everyoneVoted && (
+        {isHost && (
           <button
             onClick={handleNextAward}
             className="w-full max-w-xs bg-white text-[#433D34] p-[12px] text-xl font-black uppercase rounded-[4px] shadow-2xl hover:bg-white/90 active:scale-95 transition-all mt-4"
