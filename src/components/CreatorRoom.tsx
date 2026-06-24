@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useGame } from '../GameContext';
 import { db } from '../firebase';
 import { doc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { Stage, Layer, Line, Text } from 'react-konva';
-import { motion } from 'motion/react';
+import { Stage, Layer, Line, Text, Image as KonvaImage } from 'react-konva';
+import { motion, AnimatePresence } from 'motion/react';
 import { Eraser, Pencil, Save, CheckCircle, Loader2, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { handleFirestoreError, OperationType } from '../errorHandlers';
 import { CHARACTERS, DEFAULT_PROMPTS, PROMPT_IMAGES } from '../constants';
@@ -12,10 +12,46 @@ const STICKERS = [
   '🚀', '💡', '🛠️', '🧬', '⚡', '🌈', '🧠', '🤖', '🌍', '🔥', '💎', '🎨'
 ];
 
+function StickerImage({ src, x, y, isDone, onDragEnd }: any) {
+  const [image, setImage] = useState<HTMLImageElement | null>(null);
+
+  useEffect(() => {
+    const img = new window.Image();
+    img.src = src;
+    img.onload = () => {
+      setImage(img);
+    };
+  }, [src]);
+
+  if (!image) return null;
+
+  return (
+    <KonvaImage
+      image={image}
+      x={x}
+      y={y}
+      width={70}
+      height={70}
+      offsetX={35}
+      offsetY={35}
+      draggable={!isDone}
+      onDragEnd={onDragEnd}
+      onMouseEnter={(e) => {
+        const container = e.target.getStage()?.container();
+        if (container) container.style.cursor = 'pointer';
+      }}
+      onMouseLeave={(e) => {
+        const container = e.target.getStage()?.container();
+        if (container) container.style.cursor = 'default';
+      }}
+    />
+  );
+}
+
 export function CreatorRoom() {
   const { room, players, user } = useGame();
   const [tool, setTool] = useState<'pencil' | 'eraser'>('pencil');
-  const [color, setColor] = useState('#ED5F69');
+  const [color, setColor] = useState('#433D34');
   const [lines, setLines] = useState<any[]>([]);
   const [stickers, setStickers] = useState<any[]>([]);
   const [name, setName] = useState('');
@@ -23,6 +59,7 @@ export function CreatorRoom() {
   const [isDone, setIsDone] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120);
   const [isPrep, setIsPrep] = useState(true);
+  const [isPaperOpen, setIsPaperOpen] = useState(false);
   const isDrawing = useRef(false);
   const stageRef = useRef<any>(null);
   const nameRef = useRef(name);
@@ -45,18 +82,26 @@ export function CreatorRoom() {
     isDrawing.current = true;
     const stage = e.target.getStage();
     const pos = stage.getPointerPosition();
-    setLines([...lines, { tool, points: [pos.x, pos.y], color: tool === 'eraser' ? '#FFFBFB' : color }]);
+    const scaleX = 284 / 340;
+    const scaleY = 384 / 450;
+    const x = pos.x / scaleX;
+    const y = pos.y / scaleY;
+    setLines([...lines, { tool, points: [x, y], color: tool === 'eraser' ? '#FFFBFB' : color }]);
   };
 
   const handleMouseMove = (e: any) => {
     if (!isDrawing.current || isDone) return;
     const stage = e.target.getStage();
     const point = stage.getPointerPosition();
+    const scaleX = 284 / 340;
+    const scaleY = 384 / 450;
+    const x = point.x / scaleX;
+    const y = point.y / scaleY;
     
     if (lines.length === 0) return;
 
     let lastLine = { ...lines[lines.length - 1] };
-    lastLine.points = lastLine.points.concat([point.x, point.y]);
+    lastLine.points = lastLine.points.concat([x, y]);
     
     const newLines = lines.slice(0, -1);
     newLines.push(lastLine);
@@ -275,8 +320,8 @@ export function CreatorRoom() {
   return (
     <div className="h-full flex flex-col bg-transparent overflow-hidden">
       {/* Progress Bar Header */}
-      <div className="w-full h-8 bg-white p-2">
-        <div className="h-full bg-[#ED5F69]/20 rounded-full overflow-hidden">
+      <div className="w-full flex flex-col items-center pt-4 px-4 gap-1">
+        <div className="w-[80%] max-w-[280px] h-4 bg-white rounded-full overflow-hidden shadow-inner">
           <motion.div 
             className="h-full bg-[#ED5F69]" 
             initial={{ width: '100%' }}
@@ -284,19 +329,17 @@ export function CreatorRoom() {
             transition={{ ease: 'linear' }}
           />
         </div>
+        
+        {/* Prompt Header */}
+        <p className="text-white/80 text-[13px] font-black uppercase tracking-widest text-center mt-1">
+          PROMPT: {room?.selectedPrompt}
+        </p>
       </div>
 
-      <div className="flex-1 flex flex-col items-center p-4 gap-4 max-w-4xl mx-auto w-full overflow-y-auto">
-        {/* Prompt Header */}
-        <div className="text-center">
-          <p className="text-white/60 font-black uppercase text-xs tracking-wider mb-1">PROMPT</p>
-          <h3 className="text-white text-lg font-black uppercase leading-tight italic truncate max-w-xs md:max-w-md">
-            {room?.selectedPrompt}
-          </h3>
-        </div>
-
-        {/* Editable Solution Title */}
-        <div className="bg-white px-4 py-2 rounded-[4px] shadow-sm max-w-sm w-full border-2 border-white">
+      <div className="flex-1 flex flex-col items-center justify-between p-4 gap-2 max-w-4xl mx-auto w-full overflow-y-auto">
+        
+        {/* Editable Solution Title inside White Banner */}
+        <div className="bg-white px-6 py-2 rounded-[8px] shadow-md max-w-[280px] w-full border border-black/5 mt-1">
           <input 
             type="text"
             value={name}
@@ -305,66 +348,32 @@ export function CreatorRoom() {
             autoComplete="off"
             autoCorrect="off"
             spellCheck={false}
-            className="w-full text-[#ED5F69] text-2xl font-black uppercase tracking-tight text-center outline-none border-none bg-transparent placeholder:opacity-40"
+            className="w-full text-[#ED5F69] text-xl font-black uppercase tracking-tight text-center outline-none border-none bg-transparent placeholder:text-[#ED5F69]/40"
+            maxLength={18}
           />
         </div>
 
-        {/* Labels Row */}
-        <div className="w-full flex justify-between px-4">
-          <span className="text-[#ED5F69] font-black uppercase text-sm tracking-widest">Drawing</span>
-          <span className="text-[#ED5F69] font-black uppercase text-sm tracking-widest">Stickers</span>
-        </div>
-
-        {/* Main Creation Area */}
-        <div className="w-full flex items-start justify-center gap-4 relative">
-          {/* Left Toolbar - Drawing */}
-          <div className="flex flex-col gap-[10px] bg-white p-2 rounded-[4px] shadow-md self-start">
-             <button 
-               onClick={() => setTool('pencil')}
-               className={`w-12 h-12 rounded-[4px] flex items-center justify-center transition-all ${tool === 'pencil' ? 'bg-[#DFDFDF] ring-4 ring-[#ED5F69]' : 'bg-[#DFDFDF]'}`}
-             >
-               <div className="w-4 h-4 rounded-full bg-[#ED5F69]" />
-             </button>
-             <button 
-               onClick={() => setTool('eraser')}
-               className={`w-12 h-12 rounded-[4px] flex items-center justify-center transition-all ${tool === 'eraser' ? 'bg-[#ED5F69] text-white' : 'bg-[#DFDFDF] text-black/20'}`}
-             >
-               <Eraser className="w-6 h-6 rotate-12" />
-             </button>
-
-             <div className="h-[2px] bg-black/5 my-2" />
-
-             <button onClick={() => { setTool('pencil'); setColor('#ED5F69'); }} className={`w-12 h-12 rounded-[4px] bg-[#ED5F69] transition-transform ${color === '#ED5F69' && tool === 'pencil' ? 'scale-110 shadow-lg' : 'opacity-80'}`} />
-             <button onClick={() => { setTool('pencil'); setColor('#F28C94'); }} className={`w-12 h-12 rounded-[4px] bg-[#F28C94] transition-transform ${color === '#F28C94' && tool === 'pencil' ? 'scale-110 shadow-lg' : 'opacity-80'}`} />
-             <button onClick={() => { setTool('pencil'); setColor('#4CAF50'); }} className={`w-12 h-12 rounded-[4px] bg-[#4CAF50] transition-transform ${color === '#4CAF50' && tool === 'pencil' ? 'scale-110 shadow-lg' : 'opacity-80'}`} />
+        {/* Central Creation Area */}
+        <div className="relative w-[340px] h-[480px] mx-auto flex flex-col items-center justify-start mt-2 select-none">
+          
+          {/* Paper with Stickers trigger (Corner) */}
+          <div 
+            onClick={() => setIsPaperOpen(true)}
+            className="absolute left-[-22px] top-[100px] w-14 h-40 cursor-pointer z-20 hover:scale-105 active:scale-95 transition-transform"
+          >
+            <img src="/drawing/paper.png" className="w-full h-full object-contain" alt="Paper sticker drawer" />
           </div>
 
-          {/* Canvas Card */}
+          {/* Canvas Card (Notebook) */}
           <div 
-            className="flex-1 max-w-[340px] aspect-[3/4] rounded-lg shadow-2xl overflow-hidden touch-none relative p-2 border-2 border-white bg-cover bg-center"
+            className="w-[300px] h-[400px] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.25)] overflow-hidden touch-none relative p-2 bg-cover bg-center bg-white"
             style={{ backgroundImage: "url('/backgrounds/notebook.png')" }}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => {
-              e.preventDefault();
-              stageRef.current.setPointersPositions(e);
-              const emoji = e.dataTransfer.getData('emoji');
-              if (emoji) {
-                const pos = stageRef.current.getPointerPosition();
-                setStickers([
-                  ...stickers,
-                  {
-                    x: pos.x - 30, // Offset for font size
-                    y: pos.y - 30,
-                    emoji,
-                    id: Date.now().toString()
-                  },
-                ]);
-              }
-            }}
           >
             <Stage
-              width={340}
-              height={450}
+              width={284}
+              height={384}
+              scaleX={284 / 340}
+              scaleY={384 / 450}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
@@ -378,7 +387,7 @@ export function CreatorRoom() {
                   <Line
                     key={i}
                     points={line.points}
-                    stroke={line.color || '#000000'}
+                    stroke={line.color || '#433D34'}
                     strokeWidth={line.tool === 'eraser' ? 30 : 5}
                     tension={0.5}
                     lineCap="round"
@@ -390,75 +399,142 @@ export function CreatorRoom() {
                 ))}
               </Layer>
               <Layer>
-                {stickers.map((s, i) => (
-                  <Text
-                    key={s.id}
-                    text={s.emoji}
-                    x={s.x}
-                    y={s.y}
-                    fontSize={60}
-                    draggable={!isDone}
-                    onMouseEnter={(e) => {
-                      const container = e.target.getStage()?.container();
-                      if (container) container.style.cursor = 'pointer';
-                    }}
-                    onMouseLeave={(e) => {
-                      const container = e.target.getStage()?.container();
-                      if (container) container.style.cursor = 'default';
-                    }}
-                    onDragEnd={(e) => {
-                      const container = e.target.getStage()?.container();
-                      if (container) container.style.cursor = 'default';
-                      const newStickers = stickers.slice();
-                      newStickers[i] = { ...s, x: e.target.x(), y: e.target.y() };
-                      setStickers(newStickers);
-                    }}
-                  />
-                ))}
+                {stickers.map((s, i) => {
+                  if (s.src) {
+                    return (
+                      <StickerImage
+                        key={s.id}
+                        src={s.src}
+                        x={s.x}
+                        y={s.y}
+                        isDone={isDone}
+                        onDragEnd={(e: any) => {
+                          const newStickers = stickers.slice();
+                          newStickers[i] = { ...s, x: e.target.x(), y: e.target.y() };
+                          setStickers(newStickers);
+                        }}
+                      />
+                    );
+                  }
+                  return (
+                    <Text
+                      key={s.id}
+                      text={s.emoji}
+                      x={s.x}
+                      y={s.y}
+                      fontSize={40}
+                      draggable={!isDone}
+                      onDragEnd={(e) => {
+                        const newStickers = stickers.slice();
+                        newStickers[i] = { ...s, x: e.target.x(), y: e.target.y() };
+                        setStickers(newStickers);
+                      }}
+                    />
+                  );
+                })}
               </Layer>
             </Stage>
 
             {isDone && (
               <div className="absolute inset-0 bg-white/60 flex items-center justify-center p-8 text-center backdrop-blur-sm z-50">
-                <div className="bg-[#ED5F69] text-white p-10 rounded-2xl shadow-2xl space-y-4 max-w-[200px]">
-                  <CheckCircle className="w-12 h-12 mx-auto" />
-                  <p className="font-black uppercase text-xl italic leading-none">Ready for present!</p>
+                <div className="bg-[#ED5F69] text-white p-6 rounded-2xl shadow-2xl space-y-4 max-w-[180px]">
+                  <CheckCircle className="w-12 h-12 mx-auto animate-bounce" />
+                  <p className="font-black uppercase text-lg italic leading-none">Ready for present!</p>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Right Toolbar - Stickers */}
-          <div className="flex flex-col gap-4 bg-white p-2 rounded-lg shadow-md self-start min-h-[300px]">
-             {['💥', '📱', '🌭', '💡', '🧪', '🔥'].map(s => (
-               <button 
-                 key={s} 
-                 onClick={() => addSticker(s)}
-                 draggable
-                 onDragStart={(e) => {
-                   e.dataTransfer.setData('emoji', s);
-                 }}
-                 className="p-1 text-4xl hover:scale-110 active:scale-125 transition-transform cursor-grab active:cursor-grabbing"
-               >
-                 {s}
-               </button>
-             ))}
-          </div>
+          {/* Pencil Button lying diagonally */}
+          <button
+            onClick={() => setTool('pencil')}
+            className={`absolute left-0 bottom-4 w-44 h-12 transform -rotate-6 transition-all duration-300 focus:outline-none cursor-pointer ${tool === 'pencil' ? 'scale-110 drop-shadow-[0_12px_24px_rgba(0,0,0,0.3)] brightness-110' : 'opacity-70 hover:opacity-100 hover:scale-105'}`}
+          >
+            <img src="/drawing/pencil.png" className="w-full h-full object-contain pointer-events-none" alt="Pencil tool" />
+          </button>
+
+          {/* Eraser Button lying diagonally */}
+          <button
+            onClick={() => setTool('eraser')}
+            className={`absolute right-2 bottom-0 w-20 h-16 transform rotate-12 transition-all duration-300 focus:outline-none cursor-pointer ${tool === 'eraser' ? 'scale-115 drop-shadow-[0_12px_24px_rgba(0,0,0,0.3)] brightness-110' : 'opacity-70 hover:opacity-100 hover:scale-105'}`}
+          >
+            <img src="/drawing/eraser.png" className="w-full h-full object-contain pointer-events-none" alt="Eraser tool" />
+          </button>
         </div>
 
         {/* Footer Submit Button */}
         {!isDone && (
-          <div className="mt-auto pb-8 w-full flex justify-center">
+          <div className="pb-4 w-full flex justify-center mt-auto z-10">
             <button
               onClick={() => handleSave()}
               disabled={isSaving || lines.length === 0 || !name.trim()}
-              className="bg-[#ED5F69] text-white p-[10px] text-2xl font-black uppercase rounded-[4px] shadow-xl hover:brightness-105 active:scale-95 transition-all disabled:opacity-50"
+              className="bg-[#ED5F69] text-white py-3 px-12 text-xl font-black uppercase rounded-[4px] shadow-lg hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
             >
               {isSaving ? <Loader2 className="animate-spin" /> : 'Submit'}
             </button>
           </div>
         )}
       </div>
+
+      {/* Paper Overlay modal for stickers */}
+      <AnimatePresence>
+        {isPaperOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setIsPaperOpen(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-3xl shadow-2xl p-6 max-w-sm w-full border border-black/5 flex flex-col items-center relative"
+              onClick={(e) => e.stopPropagation()}
+              style={{ 
+                backgroundImage: "radial-gradient(circle, #ffffff 0%, #f4f4f4 100%)"
+              }}
+            >
+              <h3 className="text-[#433D34] text-2xl font-black uppercase tracking-tight mb-4">Choose Stickers</h3>
+              
+              <div className="grid grid-cols-3 gap-4 w-full justify-items-center mb-6">
+                {[1, 2, 3, 4, 5].map((num) => {
+                  const stickerSrc = `/drawing/sticker_${num}.png`;
+                  return (
+                    <button
+                      key={num}
+                      onClick={() => {
+                        // Add image sticker to canvas and close
+                        setStickers([
+                          ...stickers,
+                          {
+                            id: Date.now().toString() + '_' + num,
+                            src: stickerSrc,
+                            x: 140, // Centered inside the 284 stage width
+                            y: 192  // Centered inside the 384 stage height
+                          }
+                        ]);
+                        setIsPaperOpen(false);
+                      }}
+                      className="w-16 h-16 p-2 rounded-2xl hover:scale-110 active:scale-90 transition-transform bg-white/50 border border-black/5 shadow-sm hover:shadow-md flex items-center justify-center cursor-pointer"
+                    >
+                      <img src={stickerSrc} className="w-full h-full object-contain" alt={`Sticker ${num}`} />
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => setIsPaperOpen(false)}
+                className="bg-[#433D34] text-white py-2 px-6 rounded-lg text-sm font-black uppercase shadow-md hover:bg-[#342f28] transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -126,16 +126,30 @@ export function PresentationRoom() {
                 } as any}
               />
             ))}
-            {canvasData.stickers.map((s: any) => (
-              <text
-                key={s.id}
-                x={s.x}
-                y={s.y + 40}
-                fontSize="60"
-              >
-                {s.emoji}
-              </text>
-            ))}
+            {canvasData.stickers.map((s: any) => {
+              if (s.src) {
+                return (
+                  <image
+                    key={s.id}
+                    href={s.src}
+                    x={s.x - 35}
+                    y={s.y - 35}
+                    width="70"
+                    height="70"
+                  />
+                );
+              }
+              return (
+                <text
+                  key={s.id}
+                  x={s.x}
+                  y={s.y + 40}
+                  fontSize="60"
+                >
+                  {s.emoji}
+                </text>
+              );
+            })}
           </svg>
         </div>
       </div>
