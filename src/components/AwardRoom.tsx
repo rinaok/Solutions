@@ -26,26 +26,37 @@ function AwardImage({ src, fallback, className }: { src: string; fallback: React
 
 export function AwardRoom() {
   const { room, players, solutions, user } = useGame();
+  const Richmond = 'warm'; // style context helper
   const isHost = room?.hostId === user?.uid;
 
   const prizes = room?.prizes || AWARDS;
-  const currentPrizeIndex = room?.currentPrizeIndex || 0;
-  const currentPrize = prizes[currentPrizeIndex] || AWARDS[0];
 
   const selfPlayer = players.find(p => p.id === user?.uid);
-  const hasVotedCurrent = selfPlayer?.votes?.[currentPrizeIndex] !== undefined;
 
-  // We should count votes of only players who have actually registered a vote for this round
-  const everyoneVoted = players.length > 0 && players.every(p => p.votes?.[currentPrizeIndex] !== undefined);
+  // Track the local voting index so players can vote sequentially at their own pace
+  const [localPrizeIndex, setLocalPrizeIndex] = useState(() => {
+    if (!selfPlayer?.votes) return 0;
+    const firstUnvoted = prizes.findIndex((_, idx) => selfPlayer.votes?.[idx] === undefined);
+    return firstUnvoted === -1 ? prizes.length : firstUnvoted;
+  });
+
+  const hasFinishedAllVoting = localPrizeIndex >= prizes.length;
+
+  // We should count votes of only players who have actually registered all votes
+  const everyoneVoted = players.length > 0 && players.every(
+    p => p.votes && Object.keys(p.votes).length >= prizes.length
+  );
 
   const handleVote = async (solutionId: string) => {
     if (!user || !room) return;
+    const voteIndex = localPrizeIndex;
+    setLocalPrizeIndex(prev => prev + 1);
     try {
       const currentVotes = selfPlayer?.votes || {};
       await updateDoc(doc(db, 'rooms', room.id, 'players', user.uid), {
         votes: {
           ...currentVotes,
-          [currentPrizeIndex]: solutionId
+          [voteIndex]: solutionId
         }
       });
     } catch (error) {
@@ -53,114 +64,122 @@ export function AwardRoom() {
     }
   };
 
-  const handleNextAward = async () => {
+  const handleRevealResults = async () => {
     if (!room || !isHost) return;
     try {
-      // Tally votes for currentPrizeIndex
-      const voteCounts: { [solId: string]: number } = {};
-      players.forEach(p => {
-        const chosen = p.votes?.[currentPrizeIndex];
-        if (chosen) {
-          voteCounts[chosen] = (voteCounts[chosen] || 0) + 1;
-        }
-      });
-
-      // Find the winner solution (with max votes)
-      let winningSolutionId: string | null = null;
-      let maxVotes = -1;
-
-      // Iterate solutions to count
+      // 1. Tally votes for ALL prizes
+      const solutionPrizeUpdates: { [solId: string]: any[] } = {};
       solutions.forEach(s => {
-        const votesCount = voteCounts[s.id] || 0;
-        if (votesCount > maxVotes) {
-          maxVotes = votesCount;
-          winningSolutionId = s.id;
+        solutionPrizeUpdates[s.id] = [];
+      });
+
+      prizes.forEach((prize: any, idx: number) => {
+        const voteCounts: { [solId: string]: number } = {};
+        players.forEach(p => {
+          const chosen = p.votes?.[idx];
+          if (chosen) {
+            voteCounts[chosen] = (voteCounts[chosen] || 0) + 1;
+          }
+        });
+
+        let winningSolutionId: string | null = null;
+        let maxVotes = -1;
+
+        solutions.forEach(s => {
+          const votesCount = voteCounts[s.id] || 0;
+          if (votesCount > maxVotes) {
+            maxVotes = votesCount;
+            winningSolutionId = s.id;
+          }
+        });
+
+        if (winningSolutionId) {
+          const winnerSolution = solutions.find(s => s.id === winningSolutionId);
+          const winnerPlayer = players.find(p => p.id === winnerSolution?.playerId);
+
+          const awardedPrize = {
+            id: prize.id,
+            name: prize.name,
+            src: prize.src || '',
+            fallbackEmoji: prize.fallbackEmoji || '🏆',
+            winnerName: winnerPlayer?.name || 'Winner'
+          };
+          
+          if (solutionPrizeUpdates[winningSolutionId]) {
+            solutionPrizeUpdates[winningSolutionId].push(awardedPrize);
+          }
         }
       });
 
-      if (winningSolutionId) {
-        const winnerSolution = solutions.find(s => s.id === winningSolutionId);
-        const winnerPlayer = players.find(p => p.id === winnerSolution?.playerId);
-
-        // Build the awarded prize metadata
-        const awardedPrize = {
-          id: currentPrize.id,
-          name: currentPrize.name,
-          src: currentPrize.src || '',
-          fallbackEmoji: currentPrize.fallbackEmoji || '🏆',
-          winnerName: winnerPlayer?.name || 'Winner'
-        };
-
-        const existingPrizesList = winnerSolution?.prizes || [];
-        await updateDoc(doc(db, 'rooms', room.id, 'solutions', winningSolutionId), {
-          // Update both fields for full backward/forward compatibility
-          prize: awardedPrize,
-          prizes: [...existingPrizesList, awardedPrize]
+      // 2. Perform updates to each solution doc in Firestore
+      const updatePromises = Object.entries(solutionPrizeUpdates).map(([solId, wonPrizes]) => {
+        if (wonPrizes.length === 0) return Promise.resolve();
+        const sol = solutions.find(s => s.id === solId);
+        const existingPrizesList = sol?.prizes || [];
+        const combined = [...existingPrizesList, ...wonPrizes];
+        return updateDoc(doc(db, 'rooms', room.id, 'solutions', solId), {
+          prize: wonPrizes[0],
+          prizes: combined
         });
-      }
+      });
 
-      // Check if there are more award rounds
-      if (currentPrizeIndex + 1 < prizes.length) {
-        await updateDoc(doc(db, 'rooms', room.id), {
-          currentPrizeIndex: currentPrizeIndex + 1
-        });
-      } else {
-        await updateDoc(doc(db, 'rooms', room.id), {
-          status: 'finale'
-        });
-      }
+      await Promise.all(updatePromises);
+
+      // 3. Set room status to finale and set revealIndex to 0
+      await updateDoc(doc(db, 'rooms', room.id), {
+        status: 'finale',
+        revealIndex: 0
+      });
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, `rooms/${room.id}`);
     }
   };
 
-  if (hasVotedCurrent) {
+  const currentPrize = prizes[localPrizeIndex < prizes.length ? localPrizeIndex : prizes.length - 1] || AWARDS[0];
+
+  if (hasFinishedAllVoting) {
     return (
       <div className="min-h-screen w-full flex flex-col items-center justify-start bg-transparent p-8 space-y-6 overflow-y-auto pb-16">
-        {/* Progress header dots */}
+        {/* Progress header dots - all filled when finished */}
         <div className="flex gap-[6px] justify-center items-center mt-2">
           {prizes.map((_, idx) => (
             <div 
               key={idx} 
-              className={`h-[6px] rounded-full transition-all duration-300 ${idx === currentPrizeIndex ? 'w-6 bg-[#ED5F69]' : 'w-[6px] bg-[#433D34]/20'}`} 
+              className="h-[6px] w-6 bg-[#ED5F69] rounded-full transition-all duration-300" 
             />
           ))}
         </div>
 
         <div className="text-center">
           <span className="text-[#433D34]/60 font-black uppercase text-xs tracking-widest block mb-1">
-            Round {currentPrizeIndex + 1} of {prizes.length}
+            Voting Completed!
           </span>
           <h2 className="text-[#433D34] text-lg font-black uppercase tracking-tight">
-            {currentPrize.name}
+            All Awards Voted
           </h2>
         </div>
 
         <div className="w-48 h-48 bg-white rounded-full flex items-center justify-center shadow-2xl overflow-hidden p-4 relative flex-shrink-0">
-          <AwardImage 
-            src={currentPrize.src}
-            fallback={<Trophy className="w-24 h-24 text-[#ED5F69]" />}
-            className="w-36 h-36 object-contain"
-          />
+          <Trophy className="w-24 h-24 text-amber-500 animate-bounce" />
         </div>
         
         <div className="text-center space-y-1">
-          <h3 className="text-[#433D34] text-2xl font-black uppercase tracking-tight">Vote Submitted!</h3>
+          <h3 className="text-[#433D34] text-2xl font-black uppercase tracking-tight">Votes Submitted!</h3>
           <p className="text-[#433D34]/60 font-black uppercase text-xs tracking-wider">
-            {everyoneVoted ? 'Everyone has voted!' : 'Waiting for other players to vote...'}
+            {everyoneVoted ? 'Everyone has finished voting!' : 'Waiting for other players to finish voting...'}
           </p>
         </div>
 
         {/* Real-time players list with checkmarks for voting */}
         <div className="flex justify-center gap-3 flex-wrap max-w-sm bg-[#433D34]/5 p-4 rounded-lg border border-[#433D34]/10">
           {players.map(p => {
-            const hasPlayedVoted = p.votes?.[currentPrizeIndex] !== undefined;
+            const finishedAll = p.votes && Object.keys(p.votes).length >= prizes.length;
             return (
               <div key={p.id} className="relative">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center overflow-hidden transition-all bg-white shadow-lg border-2 ${hasPlayedVoted ? 'border-[#ED5F69] scale-105' : 'border-transparent opacity-40'}`}>
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center overflow-hidden transition-all bg-white shadow-lg border-2 ${finishedAll ? 'border-[#ED5F69] scale-105' : 'border-transparent opacity-40'}`}>
                   <img src={CHARACTERS.find(c => c.id === p.avatar)?.src} className="w-9 h-9 object-contain" />
                 </div>
-                {hasPlayedVoted && (
+                {finishedAll && (
                   <div className="absolute -top-[2px] -right-[2px] bg-[#ED5F69] rounded-full p-[3px] border-2 border-white">
                     <Star className="w-2 h-2 text-white fill-current" />
                   </div>
@@ -170,12 +189,12 @@ export function AwardRoom() {
           })}
         </div>
 
-        {isHost && (
+        {isHost && everyoneVoted && (
           <button
-            onClick={handleNextAward}
-            className="w-full max-w-xs bg-[#433D34] text-white p-[12px] text-xl font-black uppercase rounded-[4px] shadow-2xl hover:brightness-110 active:scale-95 transition-all mt-4"
+            onClick={handleRevealResults}
+            className="w-full max-w-xs bg-[#433D34] text-white p-[12px] text-xl font-black uppercase rounded-[4px] shadow-2xl hover:brightness-110 active:scale-95 transition-all mt-4 animate-pulse"
           >
-            {currentPrizeIndex + 1 === prizes.length ? 'Show Results!' : 'Next Award'}
+            Reveal Results!
           </button>
         )}
       </div>
