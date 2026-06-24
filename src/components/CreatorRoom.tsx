@@ -411,91 +411,94 @@ export function CreatorRoom() {
         {/* Central Creation Area */}
         <div className="relative w-[340px] h-[480px] mx-auto flex flex-col items-center justify-start mt-2 select-none">
           
-          {/* Peeking / Centered Paper with Stickers */}
-          <motion.div
-            animate={{
-              x: isPaperOpen ? 10 : -85,
-              y: isPaperOpen ? 15 : 70,
-              width: isPaperOpen ? 320 : 150,
-              height: isPaperOpen ? 430 : 330,
-              rotate: isPaperOpen ? 0 : 12,
-            }}
-            transition={{ type: 'spring', stiffness: 220, damping: 25 }}
-            onClick={() => {
-              if (!isPaperOpen) setIsPaperOpen(true);
-            }}
-            className={`absolute rounded-xl shadow-2xl z-30 overflow-hidden bg-white border border-black/10 flex flex-col items-center select-none ${isPaperOpen ? 'cursor-default pointer-events-auto' : 'hover:scale-105 active:scale-95 transition-transform cursor-pointer'}`}
-            style={{
-              backgroundImage: "radial-gradient(circle, #ffffff 0%, #f7f6f4 100%)",
-              transformOrigin: "center center",
-            }}
-          >
-            {/* The custom paper folder texture watermark */}
-            <div className="absolute inset-0 pointer-events-none opacity-10 mix-blend-multiply bg-cover" style={{ backgroundImage: "url('/drawing/paper.png')" }} />
-            
-            {/* Inside the paper (rendered only when open) */}
-            {isPaperOpen ? (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
-                className="w-full h-full p-6 flex flex-col items-center relative animate-fade-in"
-                onClick={(e) => e.stopPropagation()} // Prevent closing when clicking content
+          {/* Peeking Paper Corner on the left of the drawing/notebook */}
+          <AnimatePresence>
+            {!isPaperOpen && (
+              <motion.div
+                key="paper-corner"
+                initial={{ opacity: 0, x: -30, rotate: -8 }}
+                animate={{ opacity: 1, x: 0, rotate: -2 }}
+                exit={{ opacity: 0, x: -40, rotate: -15 }}
+                transition={{ type: 'spring', stiffness: 220, damping: 20 }}
+                onClick={() => setIsPaperOpen(true)}
+                className="absolute left-[-55px] top-[100px] w-20 h-44 cursor-pointer z-20 hover:scale-105 active:scale-95 transition-all flex items-center justify-start"
               >
-                {/* Hand-drawn style title */}
-                <h3 className="text-[#433D34] text-2xl font-black uppercase tracking-tight mb-6 mt-2 italic">Choose Stickers</h3>
-                
-                {/* Grid of stickers */}
-                <div className="grid grid-cols-2 gap-6 w-full justify-items-center max-h-[260px] overflow-y-auto px-2">
-                  {[1, 2, 3, 4, 5].map((num) => {
-                    const stickerSrc = `/drawing/sticker_${num}.png`;
-                    return (
-                      <motion.button
-                        key={num}
-                        whileHover={{ scale: 1.1, rotate: 3 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => {
-                          setStickers([
-                            ...stickers,
-                            {
-                              id: Date.now().toString() + '_' + num,
-                              src: stickerSrc,
-                              x: 142, 
-                              y: 192  
-                            }
-                          ]);
-                          setIsPaperOpen(false);
-                        }}
-                        className="w-20 h-20 p-3 rounded-2xl bg-white/60 border border-[#433D34]/10 shadow-md hover:shadow-lg flex items-center justify-center cursor-pointer relative group overflow-hidden"
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <img src={stickerSrc} className="w-full h-full object-contain relative z-10" alt={`Sticker ${num}`} />
-                      </motion.button>
-                    );
-                  })}
-                </div>
-
-                {/* Close button at the bottom of the paper sheet */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsPaperOpen(false)}
-                  className="mt-auto bg-[#433D34] text-white py-2 px-8 rounded-full text-xs font-black uppercase shadow-md hover:bg-[#342f28] transition-colors cursor-pointer"
-                >
-                  Close
-                </motion.button>
-              </motion.div>
-            ) : (
-              // When closed, render the peeking graphics so it's clean and rotated
-              <div className="w-full h-full relative flex items-center justify-end pr-4">
                 <img 
-                  src="/drawing/paper.png" 
-                  className="w-full h-full object-contain select-none pointer-events-none transform -rotate-12 scale-110" 
-                  alt="Paper drawer" 
+                  src="/drawing/paper_corner.png" 
+                  className="w-full h-full object-contain drop-shadow-[2px_6px_12px_rgba(0,0,0,0.15)]" 
+                  alt="Paper sticker drawer corner" 
                 />
-              </div>
+              </motion.div>
             )}
-          </motion.div>
+          </AnimatePresence>
+
+          {/* Full Centered Paper with Stickers */}
+          <AnimatePresence>
+            {isPaperOpen && (
+              <motion.div
+                key="paper-full"
+                initial={{ opacity: 0, scale: 0.9, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 15 }}
+                transition={{ type: 'spring', stiffness: 250, damping: 25 }}
+                className="absolute inset-0 z-40 flex items-center justify-center p-2"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div 
+                  className="w-[320px] h-[430px] p-6 flex flex-col items-center relative rounded-2xl shadow-2xl border border-black/5"
+                  style={{
+                    backgroundImage: "url('/drawing/paper.png')",
+                    backgroundSize: '100% 100%',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                  }}
+                >
+                  {/* Hand-drawn style title */}
+                  <h3 className="text-[#433D34] text-2xl font-black uppercase tracking-tight mb-6 mt-4 italic text-center select-none">Choose Stickers</h3>
+                  
+                  {/* Grid of stickers */}
+                  <div className="grid grid-cols-2 gap-6 w-full justify-items-center max-h-[250px] overflow-y-auto px-2">
+                    {[1, 2, 3, 4, 5].map((num) => {
+                      const stickerSrc = `/drawing/sticker_${num}.png`;
+                      return (
+                        <motion.button
+                          key={num}
+                          whileHover={{ scale: 1.1, rotate: 3 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => {
+                            setStickers([
+                              ...stickers,
+                              {
+                                id: Date.now().toString() + '_' + num,
+                                src: stickerSrc,
+                                x: 142, 
+                                y: 192  
+                              }
+                            ]);
+                            setIsPaperOpen(false);
+                          }}
+                          className="w-20 h-20 p-3 rounded-2xl bg-white/60 border border-[#433D34]/10 shadow-md hover:shadow-lg flex items-center justify-center cursor-pointer relative group overflow-hidden"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <img src={stickerSrc} className="w-full h-full object-contain relative z-10" alt={`Sticker ${num}`} />
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Close button at the bottom of the paper sheet */}
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setIsPaperOpen(false)}
+                    className="mt-auto bg-[#433D34] text-white py-2 px-8 rounded-full text-xs font-black uppercase shadow-md hover:bg-[#342f28] transition-colors cursor-pointer"
+                  >
+                    Close
+                  </motion.button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Canvas Card (Notebook) */}
           <div 
