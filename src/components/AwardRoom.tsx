@@ -139,64 +139,67 @@ export function AwardRoom() {
 
   if (hasFinishedAllVoting) {
     return (
-      <div className="min-h-screen w-full flex flex-col items-center justify-start bg-transparent p-8 space-y-6 overflow-y-auto pb-16">
-        {/* Progress header dots - all filled when finished */}
-        <div className="flex gap-[6px] justify-center items-center mt-2">
-          {prizes.map((_, idx) => (
-            <div 
-              key={idx} 
-              className="h-[6px] w-6 bg-[#ED5F69] rounded-full transition-all duration-300" 
-            />
-          ))}
-        </div>
-
-        <div className="text-center">
-          <span className="text-[#433D34]/60 font-black uppercase text-xs tracking-widest block mb-1">
-            Voting Completed!
-          </span>
-          <h2 className="text-[#433D34] text-lg font-black uppercase tracking-tight">
-            All Awards Voted
+      <div className="h-full min-h-screen flex flex-col bg-transparent overflow-hidden">
+        <div className="flex-1 flex flex-col items-center p-8 space-y-12 justify-center">
+          <h2 className="text-[#433D34] text-xl font-black uppercase text-center max-w-[280px] leading-tight">
+            Waiting for everyone to finish voting
           </h2>
-        </div>
 
-        <div className="w-48 h-48 bg-white rounded-full flex items-center justify-center shadow-2xl overflow-hidden p-4 relative flex-shrink-0">
-          <Trophy className="w-24 h-24 text-amber-500 animate-bounce" />
-        </div>
-        
-        <div className="text-center space-y-1">
-          <h3 className="text-[#433D34] text-2xl font-black uppercase tracking-tight">Votes Submitted!</h3>
-          <p className="text-[#433D34]/60 font-black uppercase text-xs tracking-wider">
-            {everyoneVoted ? 'Everyone has finished voting!' : 'Waiting for other players to finish voting...'}
-          </p>
-        </div>
+          <div className="relative w-full max-w-xs aspect-square">
+            {players.map((p, i) => {
+              const finishedAll = p.votes && Object.keys(p.votes).length >= prizes.length;
+              // Create a organic cluster layout
+              const angle = (i * (360 / Math.max(1, players.length)) + 20) * (Math.PI / 180);
+              const radius = 90 + (i % 2 === 0 ? 15 : -15); // Reduced radius to fit on small screens
+              const x = Math.cos(angle) * radius;
+              const y = Math.sin(angle) * radius;
 
-        {/* Real-time players list with checkmarks for voting */}
-        <div className="flex justify-center gap-3 flex-wrap max-w-sm bg-[#433D34]/5 p-4 rounded-lg border border-[#433D34]/10">
-          {players.map(p => {
-            const finishedAll = p.votes && Object.keys(p.votes).length >= prizes.length;
-            return (
-              <div key={p.id} className="relative">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center overflow-hidden transition-all bg-white shadow-lg border-2 ${finishedAll ? 'border-[#ED5F69] scale-105' : 'border-transparent opacity-40'}`}>
-                  <img src={CHARACTERS.find(c => c.id === p.avatar)?.src} className="w-9 h-9 object-contain" />
-                </div>
-                {finishedAll && (
-                  <div className="absolute -top-[2px] -right-[2px] bg-[#ED5F69] rounded-full p-[3px] border-2 border-white">
-                    <Star className="w-2 h-2 text-white fill-current" />
+              return (
+                <motion.div
+                  key={p.id}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: i * 0.1 }}
+                  style={{ 
+                    left: `calc(50% + ${x}px)`, 
+                    top: `calc(50% + ${y}px)`,
+                    transform: 'translate(-50%, -50%)' 
+                  }}
+                  className="absolute flex flex-col items-center gap-2"
+                >
+                  <div className={`w-24 h-24 flex items-center justify-center relative transition-all duration-300 ${finishedAll ? 'scale-110 filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.15)] opacity-100' : 'opacity-40 grayscale'}`}>
+                    <img 
+                      src={CHARACTERS.find(c => c.id === p.avatar)?.src} 
+                      className="w-24 h-24 object-contain relative z-10" 
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        if (target.nextSibling) {
+                          (target.nextSibling as HTMLElement).classList.remove('hidden');
+                        }
+                      }}
+                    />
+                    <div className="mini-fallback hidden text-5xl">
+                      {CHARACTERS.find(c => c.id === p.avatar)?.emoji}
+                    </div>
                   </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                  <span className={`font-extrabold uppercase text-xs tracking-wider px-2 py-0.5 rounded-sm shadow-sm transition-all duration-300 ${finishedAll ? 'bg-[#FFFBFB]/25 text-[#433D34]' : 'bg-[#FFFBFB]/10 text-[#433D34]/50'}`}>
+                    {p.name}
+                  </span>
+                </motion.div>
+              );
+            })}
+          </div>
 
-        {isHost && everyoneVoted && (
-          <button
-            onClick={handleRevealResults}
-            className="w-full max-w-xs bg-[#433D34] text-white p-[12px] text-xl font-black uppercase rounded-[4px] shadow-2xl hover:brightness-110 active:scale-95 transition-all mt-4 animate-pulse"
-          >
-            Reveal Results!
-          </button>
-        )}
+          {isHost && everyoneVoted && (
+            <button
+              onClick={handleRevealResults}
+              className="w-full max-w-xs bg-[#433D34] text-white p-[12px] text-xl font-black uppercase rounded-[4px] shadow-2xl hover:brightness-110 active:scale-95 transition-all mt-4 animate-pulse"
+            >
+              Reveal Results!
+            </button>
+          )}
+        </div>
       </div>
     );
   }

@@ -6,7 +6,7 @@ import { Stage, Layer, Line, Text } from 'react-konva';
 import { motion } from 'motion/react';
 import { Eraser, Pencil, Save, CheckCircle, Loader2, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { handleFirestoreError, OperationType } from '../errorHandlers';
-import { CHARACTERS } from '../constants';
+import { CHARACTERS, DEFAULT_PROMPTS, PROMPT_IMAGES } from '../constants';
 
 const STICKERS = [
   '🚀', '💡', '🛠️', '🧬', '⚡', '🌈', '🧠', '🤖', '🌍', '🔥', '💎', '🎨'
@@ -135,33 +135,70 @@ export function CreatorRoom() {
   }, [everyoneReady, room?.id, room?.hostId, user?.uid, room?.status, players]);
 
   if (isPrep) {
+    const promptText = room?.selectedPrompt || "My house is full of idiots";
+    const promptIndex = DEFAULT_PROMPTS.indexOf(promptText);
+    const promptImage = promptIndex !== -1 ? PROMPT_IMAGES[promptIndex] : PROMPT_IMAGES[0];
+
+    // Split the prompt dynamically: first half is smaller/subtle, second half is massive and bold
+    const splitPrompt = (text: string) => {
+      const words = text.split(' ');
+      if (words.length <= 2) {
+        return { part1: words[0] || '', part2: words.slice(1).join(' ') };
+      }
+      const mid = Math.max(1, Math.floor(words.length * 0.5));
+      return {
+        part1: words.slice(0, mid).join(' '),
+        part2: words.slice(mid).join(' ')
+      };
+    };
+
+    const { part1, part2 } = splitPrompt(promptText);
+
     return (
-      <div className="h-full flex flex-col items-center justify-center p-8 bg-transparent text-center min-h-screen">
+      <div 
+        onClick={() => setIsPrep(false)}
+        className="h-full min-h-screen flex flex-col items-center justify-between py-12 px-4 bg-transparent text-center overflow-hidden cursor-pointer select-none"
+      >
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
+          initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="max-w-md w-full space-y-8 flex flex-col items-center justify-center"
+          className="flex-1 flex flex-col items-center justify-center w-full max-w-sm space-y-8"
         >
-          <div className="space-y-4">
-             <span className="text-white/60 font-black uppercase text-sm tracking-widest block">Selected Problem</span>
-             <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tight text-white leading-tight">
-               {room?.selectedPrompt}
-             </h1>
-          </div>
-          
-          <div className="bg-white/10 p-6 rounded-[4px] border-2 border-white/20 backdrop-blur-sm">
-            <p className="text-white text-lg font-black uppercase tracking-tight leading-relaxed">
-              Get Ready! You have 2 minutes to think about a solution.
-            </p>
+          {/* Elegant Polaroid card with shadow and subtle border */}
+          <div className="w-full max-w-[280px] aspect-square bg-white rounded-2xl shadow-[0_20px_45px_rgba(0,0,0,0.18)] p-4 flex flex-col border border-black/5 transform rotate-1">
+            <div className="flex-1 bg-[#D1D1D1] rounded-xl overflow-hidden relative">
+              <img 
+                src={promptImage} 
+                className="w-full h-full object-cover"
+                alt="Selected problem illustration"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
+            </div>
           </div>
 
-          <button
-            onClick={() => setIsPrep(false)}
-            className="w-full bg-[#ED5F69] text-white p-[10px] gap-[10px] flex items-center justify-center text-2xl font-black uppercase rounded-[4px] shadow-2xl hover:brightness-105 active:scale-95 transition-all"
-          >
-            I'm Ready!
-          </button>
+          {/* Prompt text below the card */}
+          <div className="text-center max-w-[280px] space-y-1">
+            <p className="text-[#433D34]/70 text-lg font-bold font-sans">
+              {part1}
+            </p>
+            <p className="text-[#433D34] text-[32px] md:text-[36px] font-black leading-tight tracking-tight lowercase">
+              {part2}!
+            </p>
+          </div>
         </motion.div>
+
+        {/* Action button at the bottom */}
+        <div className="w-full flex justify-center pb-4">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsPrep(false);
+            }}
+            className="bg-[#ED5F69] text-white py-3 px-8 text-xl font-black uppercase rounded-[4px] shadow-lg hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+          >
+            Get ready to create
+          </button>
+        </div>
       </div>
     );
   }

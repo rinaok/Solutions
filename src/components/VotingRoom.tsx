@@ -4,24 +4,9 @@ import { db } from '../firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles } from 'lucide-react';
-import { CHARACTERS } from '../constants';
+import { CHARACTERS, DEFAULT_PROMPTS, PROMPT_IMAGES } from '../constants';
 import { handleFirestoreError, OperationType } from '../errorHandlers';
 
-const DEFAULT_PROMPTS = [
- "The dog pooped in the house",
-  "My favorite band broke up",
-  "My dad came home angry",
-  "I failed math",
-  "My house is full of idiots",
-];
-
-const PROMPT_IMAGES = [
-  'public/problems/problem_1.jpeg',
-  'public/problems/problem_2.jpeg',
-  'public/problems/problem_3.jpeg',
-  'public/problems/problem_4.jpeg',
-  'public/problems/problem_5.jpeg',
-];
 
 export function VotingRoom() {
   const { room, players, user } = useGame();
@@ -107,17 +92,17 @@ export function VotingRoom() {
   };
 
   return (
-    <div className="h-full flex flex-col items-center justify-between p-4 md:p-8 bg-transparent overflow-hidden">
-      <div className="pt-6 md:pt-12">
-        <h2 className="text-[#433D34] text-2xl font-black uppercase text-center tracking-tighter">
+    <div className="h-full min-h-screen flex flex-col items-center justify-between py-8 px-4 bg-transparent overflow-hidden">
+      <div className="w-full max-w-[320px] text-left pt-4">
+        <h2 className="text-[#433D34] text-sm font-black uppercase tracking-wider opacity-60">
           Swipe to see all
         </h2>
       </div>
 
-      <div className="relative w-full max-w-[320px] aspect-[3/4] flex items-center justify-center">
-        {/* Background stack visual effect */}
-        <div className="absolute inset-0 bg-white rounded-xl shadow-lg border-[12px] border-white -rotate-6 scale-95 opacity-40 translate-y-4" />
-        <div className="absolute inset-0 bg-white rounded-xl shadow-lg border-[12px] border-white rotate-3 scale-100 opacity-60 translate-y-2" />
+      <div className="relative w-full max-w-[320px] aspect-[3/4] my-auto flex items-center justify-center">
+        {/* Background stack visual effect matching the mockup */}
+        <div className="absolute inset-0 bg-white rounded-2xl shadow-xl -rotate-12 -translate-x-6 translate-y-3 opacity-90 scale-[0.96] border border-black/5" />
+        <div className="absolute inset-0 bg-white rounded-2xl shadow-xl rotate-12 translate-x-6 translate-y-3 opacity-90 scale-[0.96] border border-black/5" />
 
         <AnimatePresence initial={false} custom={direction}>
           <motion.div
@@ -143,18 +128,18 @@ export function VotingRoom() {
                 paginate(-1);
               }
             }}
-            className="absolute inset-0 bg-white rounded-xl shadow-2xl border-[12px] border-white flex flex-col cursor-grab active:cursor-grabbing"
+            className="absolute inset-0 bg-white rounded-2xl shadow-[0_15px_35px_rgba(0,0,0,0.15)] p-4 flex flex-col cursor-grab active:cursor-grabbing border border-black/5"
           >
-            <div className="flex-1 bg-[#D1D1D1] rounded-sm overflow-hidden relative group">
+            <div className="flex-1 bg-[#D1D1D1] rounded-xl overflow-hidden relative group">
               <img 
                 src={PROMPT_IMAGES[index]} 
-                className="w-full h-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-105"
+                className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
                 alt="Prompt visual"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
             </div>
-            <div className="h-[120px] flex items-center justify-center p-4">
-              <h3 className="text-2xl font-black text-center leading-none tracking-tighter text-[#433D34]">
+            <div className="h-[100px] flex items-center justify-center p-3 text-center">
+              <h3 className="text-[22px] font-black leading-tight tracking-tight text-[#433D34] max-w-[240px]">
                 {DEFAULT_PROMPTS[index]}
               </h3>
             </div>
@@ -162,16 +147,16 @@ export function VotingRoom() {
         </AnimatePresence>
       </div>
 
-      <div className="pb-12 w-full flex justify-center">
+      <div className="pb-8 w-full flex justify-center">
         {isHost ? (
           <button
             onClick={finishSelection}
-            className="bg-[#ED5F69] text-white p-[10px] text-2xl font-black uppercase rounded-[4px] shadow-xl hover:brightness-105 active:scale-95 transition-all"
+            className="bg-[#ED5F69] text-white py-3 px-8 text-xl font-black uppercase rounded-[4px] shadow-lg hover:brightness-110 active:scale-95 transition-all"
           >
             That's the one!
           </button>
         ) : (
-          <div className="bg-black text-white px-12 py-4 text-lg font-black uppercase rounded-lg shadow-xl animate-pulse">
+          <div className="bg-black/20 text-white px-12 py-3 text-lg font-black uppercase rounded-lg shadow-xl animate-pulse">
             Editor is choosing...
           </div>
         )}

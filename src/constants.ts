@@ -17,3 +17,20 @@ export const AWARDS = [
   { id: 'p6', name: 'The Most Fashionable', src: '/awards/award_6.png', fallbackEmoji: '🏆' },
 ];
 
+export const DEFAULT_PROMPTS = [
+  "The dog pooped in the house",
+  "My favorite band broke up",
+  "My dad came home angry",
+  "I failed math",
+  "My house is full of idiots",
+];
+
+export const PROMPT_IMAGES = [
+  '/problems/problem_1.jpeg',
+  '/problems/problem_2.jpeg',
+  '/problems/problem_3.jpeg',
+  '/problems/problem_4.jpeg',
+  '/problems/problem_5.jpeg',
+];
+
+
