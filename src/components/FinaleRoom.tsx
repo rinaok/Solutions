@@ -116,14 +116,12 @@ export function FinaleRoom() {
                   <img src={character?.src} className="w-20 h-20 object-contain drop-shadow-md animate-bounce" style={{ animationDuration: '3.5s' }} alt="Winner Avatar" />
                   
                   {/* Trophy */}
-                  <div className="relative w-16 h-20 flex items-end justify-center pb-1">
-                    <div className="relative z-10 w-12 h-12 flex items-center justify-center">
-                      <AwardImage 
-                        src={currentPrize.src || "/awards/award_1.png"}
-                        fallback={<Trophy className="w-10 h-10 text-amber-500" />}
-                        className="w-12 h-12 object-contain drop-shadow-md"
-                      />
-                    </div>
+                  <div className="w-20 h-20 flex items-center justify-center">
+                    <AwardImage 
+                      src={currentPrize.src || "/awards/award_1.png"}
+                      fallback={<Trophy className="w-16 h-16 text-amber-500" />}
+                      className="w-20 h-20 object-contain drop-shadow-md"
+                    />
                   </div>
                 </div>
                 
@@ -186,12 +184,12 @@ export function FinaleRoom() {
             New Game
           </button>
           
-          {isHost && (
+          {isHost && revealIndex + 1 < prizes.length && (
             <button
               onClick={handleNextReveal}
               className="bg-[#ED5F69] text-white py-3 px-8 text-xl font-black uppercase rounded-[4px] shadow-xl hover:brightness-110 active:scale-95 transition-all animate-pulse"
             >
-              {revealIndex + 1 === prizes.length ? 'Show All Winners' : 'Next'}
+              Next
             </button>
           )}
         </div>
@@ -235,18 +233,18 @@ export function FinaleRoom() {
                   <div className="flex items-end gap-3 h-[90px]">
                     <img src={character?.src} className="w-20 h-20 object-contain drop-shadow-md animate-bounce" style={{ animationDuration: '3.5s' }} alt="Avatar" />
                     
-                    <div className="relative w-16 h-20 flex items-end justify-center pb-1">
-                      <div className="absolute top-1 left-2 w-3 h-14 bg-[#F4A7C1] rounded-full border border-white transform rotate-[15deg] shadow-sm" />
-                      <div className="absolute top-0 left-6 w-3 h-16 bg-[#E9535E] rounded-full border border-white transform rotate-[35deg] shadow-sm" />
+                    <div className="relative w-20 h-20 flex items-center justify-center">
+                      <div className="absolute top-1 left-2 w-4 h-16 bg-[#F4A7C1] rounded-full border border-white transform rotate-[15deg] shadow-sm" />
+                      <div className="absolute top-0 left-8 w-4 h-20 bg-[#E9535E] rounded-full border border-white transform rotate-[35deg] shadow-sm" />
                       
-                      <div className="relative z-10 w-12 h-12 flex items-center justify-center">
+                      <div className="relative z-10 w-20 h-20 flex items-center justify-center">
                         <AwardImage 
                           src={primaryPrize?.src || "/awards/award_1.png"}
-                          fallback={<Trophy className="w-10 h-10 text-amber-500" />}
-                          className="w-12 h-12 object-contain drop-shadow-md"
+                          fallback={<Trophy className="w-16 h-16 text-amber-500" />}
+                          className="w-20 h-20 object-contain drop-shadow-md"
                         />
                         {wonPrizes.length > 1 && (
-                          <div className="absolute -top-1 -right-1 bg-[#ED5F69] text-white text-[9px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border border-white shadow-sm z-20">
+                          <div className="absolute -top-1 -right-1 bg-[#ED5F69] text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border border-white shadow-sm z-20">
                             +{wonPrizes.length - 1}
                           </div>
                         )}
