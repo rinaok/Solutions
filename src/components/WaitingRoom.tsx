@@ -6,6 +6,7 @@ import { motion } from 'motion/react';
 import { Users, Play, Copy, ArrowLeft } from 'lucide-react';
 import { handleFirestoreError, OperationType } from '../errorHandlers';
 import { CHARACTERS } from '../constants';
+import { playClick, playSwipe } from '../utils/sounds';
 
 export function WaitingRoom() {
   const { room, players, user, leaveRoom } = useGame();
@@ -13,6 +14,7 @@ export function WaitingRoom() {
 
   const startGame = async () => {
     if (!room) return;
+    playSwipe();
     try {
       await updateDoc(doc(db, 'rooms', room.id), {
         status: 'voting',
@@ -23,11 +25,13 @@ export function WaitingRoom() {
   };
 
   const copyCode = () => {
+    playClick();
     navigator.clipboard.writeText(room?.roomCode || '');
   };
 
   const handleExit = async () => {
     if (!room || !user) return;
+    playClick();
     try {
       await deleteDoc(doc(db, 'rooms', room.id, 'players', user.uid));
       leaveRoom();

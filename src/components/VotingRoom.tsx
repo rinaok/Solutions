@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles } from 'lucide-react';
 import { CHARACTERS, DEFAULT_PROMPTS, PROMPT_IMAGES } from '../constants';
 import { handleFirestoreError, OperationType } from '../errorHandlers';
+import { playSwipe, playClick } from '../utils/sounds';
 
 
 export function VotingRoom() {
@@ -54,12 +55,14 @@ export function VotingRoom() {
   };
 
   const paginate = (newDirection: number) => {
+    playSwipe();
     setDirection(newDirection);
     setIndex((prev) => (prev + newDirection + DEFAULT_PROMPTS.length) % DEFAULT_PROMPTS.length);
   };
 
   const finishSelection = async () => {
     if (!room) return;
+    playClick();
     try {
       await updateDoc(doc(db, 'rooms', room.id), {
         selectedPrompt: DEFAULT_PROMPTS[index],
@@ -94,7 +97,7 @@ export function VotingRoom() {
   return (
     <div className="h-full min-h-screen flex flex-col items-center justify-between py-8 px-4 bg-transparent overflow-hidden">
       <div className="w-full max-w-[320px] text-left pt-4">
-        <h2 className="text-[#433D34] text-sm font-black uppercase tracking-wider opacity-60">
+        <h2 className="text-[#433C34] text-sm font-black uppercase tracking-wider">
           Swipe to see all
         </h2>
       </div>
@@ -135,11 +138,12 @@ export function VotingRoom() {
                 src={PROMPT_IMAGES[index]} 
                 className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
                 alt="Prompt visual"
+                style={{ marginLeft: '0px', marginRight: '50px' }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
             </div>
             <div className="h-[100px] flex items-center justify-center p-3 text-center">
-              <h3 className="text-[22px] font-black leading-tight tracking-tight text-[#433D34] max-w-[240px]">
+              <h3 className="text-[22px] font-black leading-tight tracking-tight text-[#433C34] max-w-[240px]">
                 {DEFAULT_PROMPTS[index]}
               </h3>
             </div>

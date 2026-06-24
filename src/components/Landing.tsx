@@ -6,6 +6,7 @@ import { motion } from 'motion/react';
 import { LogIn, Plus, Users, Zap } from 'lucide-react';
 import { handleFirestoreError, OperationType } from '../errorHandlers';
 import { CHARACTERS } from '../constants';
+import { playClick } from '../utils/sounds';
 
 export function Landing() {
   const { user, joinRoom } = useGame();
@@ -21,6 +22,7 @@ export function Landing() {
   };
 
   const handleCreateRequest = async () => {
+    playClick();
     setAction('create');
     if (!user) {
       setIsLoading(true);
@@ -42,6 +44,7 @@ export function Landing() {
   };
 
   const handleJoinRequest = async () => {
+    playClick();
     setAction('join');
     if (!user) {
       setIsLoading(true);
@@ -64,6 +67,7 @@ export function Landing() {
 
   const handleCodeSubmit = async () => {
     if (!code) return;
+    playClick();
     setIsLoading(true);
     try {
       const roomId = code.toUpperCase();
@@ -85,6 +89,7 @@ export function Landing() {
 
   const handleFinalSubmit = async () => {
     if (!user || !name) return;
+    playClick();
     setIsLoading(true);
     
     if (action === 'create') {
@@ -195,7 +200,10 @@ export function Landing() {
                   {isLoading ? '...' : 'Join'}
                 </button>
                 <button
-                  onClick={() => setView('landing')}
+                  onClick={() => {
+                    playClick();
+                    setView('landing');
+                  }}
                   className="bg-white/50 text-black p-[10px] font-bold uppercase rounded-[4px] active:scale-95"
                 >
                   Back
@@ -228,7 +236,16 @@ export function Landing() {
                 <img 
                   src={CHARACTERS[selectedChar].src} 
                   alt="Avatar"
-                  className="w-32 h-32 object-contain relative z-10 transition-transform duration-300 filter drop-shadow-md"
+                  className="object-contain relative z-10 transition-transform duration-300 filter drop-shadow-md"
+                  style={{
+                    height: '120px',
+                    width: '120px',
+                    paddingRight: '0px',
+                    paddingLeft: '0px',
+                    paddingBottom: '0px',
+                    marginTop: '0px',
+                    marginBottom: '33px'
+                  }}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.style.display = 'none';
@@ -256,7 +273,10 @@ export function Landing() {
                 {CHARACTERS.map((char, index) => (
                   <button
                     key={char.id}
-                    onClick={() => setSelectedChar(index)}
+                    onClick={() => {
+                      playClick();
+                      setSelectedChar(index);
+                    }}
                     className={`w-18 h-18 flex items-center justify-center transition-all transform active:scale-90 ${
                       selectedChar === index ? 'scale-125 filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.15)]' : 'opacity-70 hover:opacity-100 hover:scale-110'
                     } ${index === 6 ? 'col-start-2' : ''}`}

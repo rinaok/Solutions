@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Trophy, Award, Star } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { CHARACTERS, AWARDS } from '../constants';
+import { playWin, playClick, playSwipe } from '../utils/sounds';
 
 function AwardImage({ src, fallback, className }: { src: string; fallback: React.ReactNode; className?: string }) {
   const [hasError, setHasError] = useState(false);
@@ -23,6 +24,40 @@ function AwardImage({ src, fallback, className }: { src: string; fallback: React
   );
 }
 
+function SVGSticker({ src, x, y }: { src: string; x: number; y: number }) {
+  const [dimensions, setDimensions] = useState({ width: 70, height: 70 });
+
+  useEffect(() => {
+    const img = new window.Image();
+    img.src = src;
+    img.onload = () => {
+      const maxSide = 70;
+      let w = img.width;
+      let h = img.height;
+      if (w > 0 && h > 0) {
+        if (w > h) {
+          h = (h / w) * maxSide;
+          w = maxSide;
+        } else {
+          w = (w / h) * maxSide;
+          h = maxSide;
+        }
+      }
+      setDimensions({ width: w, height: h });
+    };
+  }, [src]);
+
+  return (
+    <image
+      href={src}
+      x={x - dimensions.width / 2}
+      y={y - dimensions.height / 2}
+      width={dimensions.width}
+      height={dimensions.height}
+    />
+  );
+}
+
 export function FinaleRoom() {
   const { room, solutions, players, user, leaveRoom } = useGame();
   const isHost = room?.hostId === user?.uid;
@@ -32,6 +67,7 @@ export function FinaleRoom() {
 
   // Trigger confetti burst on load and every time a new award is revealed!
   useEffect(() => {
+    playWin();
     confetti({
       particleCount: 80,
       spread: 60,
@@ -42,6 +78,7 @@ export function FinaleRoom() {
 
   const handleNextReveal = async () => {
     if (!room) return;
+    playSwipe();
     await updateDoc(doc(db, 'rooms', room.id), {
       revealIndex: revealIndex + 1
     });
@@ -145,30 +182,51 @@ export function FinaleRoom() {
 
                 {/* SVG Drawing Covering entire Notebook Width & Height */}
                 <svg viewBox="0 0 340 450" className="w-full h-full absolute inset-0 z-0 pointer-events-none">
-                  {canvasData.lines.map((line: any, j: number) => (
-                    <polyline
-                      key={j}
-                      points={line.points.join(',')}
-                      fill="none"
-                      stroke={line.tool === 'eraser' ? 'white' : (line.color || 'black')}
-                      strokeWidth={line.tool === 'eraser' ? 30 : 5}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      style={{
-                        mixBlendMode: line.tool === 'eraser' ? 'destination-out' : 'normal'
-                      } as any}
-                    />
-                  ))}
+                  <defs>
+                    <mask id={`eraser-mask-finale-1-${sol.playerId}`}>
+                      {/* Everything is visible by default */}
+                      <rect x="0" y="0" width="340" height="450" fill="white" />
+                      {/* Eraser lines are drawn in black to mask out parts of normal lines */}
+                      {canvasData.lines
+                        .filter((line: any) => line.tool === 'eraser' || line.color === '#FFFBFB')
+                        .map((line: any, idx: number) => (
+                          <polyline
+                            key={`eraser-${idx}`}
+                            points={line.points.join(',')}
+                            fill="none"
+                            stroke="black"
+                            strokeWidth={line.tool === 'eraser' ? 30 : 30}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        ))}
+                    </mask>
+                  </defs>
+
+                  {/* Render normal drawing lines with the mask applied */}
+                  <g mask={`url(#eraser-mask-finale-1-${sol.playerId})`}>
+                    {canvasData.lines
+                      .filter((line: any) => line.tool !== 'eraser' && line.color !== '#FFFBFB')
+                      .map((line: any, j: number) => (
+                        <polyline
+                          key={j}
+                          points={line.points.join(',')}
+                          fill="none"
+                          stroke={line.color || 'black'}
+                          strokeWidth={5}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      ))}
+                  </g>
                   {canvasData.stickers.map((s: any) => {
                     if (s.src) {
                       return (
-                        <image
+                        <SVGSticker
                           key={s.id}
-                          href={s.src}
-                          x={s.x - 35}
-                          y={s.y - 35}
-                          width="70"
-                          height="70"
+                          src={s.src}
+                          x={s.x}
+                          y={s.y}
                         />
                       );
                     }
@@ -294,30 +352,51 @@ export function FinaleRoom() {
                   </div>
 
                   <svg viewBox="0 0 340 450" className="w-full h-full absolute inset-0 z-0 pointer-events-none">
-                    {canvasData.lines.map((line: any, j: number) => (
-                      <polyline
-                        key={j}
-                        points={line.points.join(',')}
-                        fill="none"
-                        stroke={line.tool === 'eraser' ? 'white' : (line.color || 'black')}
-                        strokeWidth={line.tool === 'eraser' ? 30 : 5}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        style={{
-                          mixBlendMode: line.tool === 'eraser' ? 'destination-out' : 'normal'
-                        } as any}
-                      />
-                    ))}
+                    <defs>
+                      <mask id={`eraser-mask-finale-2-${sol.playerId || i}`}>
+                        {/* Everything is visible by default */}
+                        <rect x="0" y="0" width="340" height="450" fill="white" />
+                        {/* Eraser lines are drawn in black to mask out parts of normal lines */}
+                        {canvasData.lines
+                          .filter((line: any) => line.tool === 'eraser' || line.color === '#FFFBFB')
+                          .map((line: any, idx: number) => (
+                            <polyline
+                              key={`eraser-${idx}`}
+                              points={line.points.join(',')}
+                              fill="none"
+                              stroke="black"
+                              strokeWidth={line.tool === 'eraser' ? 30 : 30}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          ))}
+                      </mask>
+                    </defs>
+
+                    {/* Render normal drawing lines with the mask applied */}
+                    <g mask={`url(#eraser-mask-finale-2-${sol.playerId || i})`}>
+                      {canvasData.lines
+                        .filter((line: any) => line.tool !== 'eraser' && line.color !== '#FFFBFB')
+                        .map((line: any, j: number) => (
+                          <polyline
+                            key={j}
+                            points={line.points.join(',')}
+                            fill="none"
+                            stroke={line.color || 'black'}
+                            strokeWidth={5}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        ))}
+                    </g>
                     {canvasData.stickers.map((s: any) => {
                       if (s.src) {
                         return (
-                          <image
+                          <SVGSticker
                             key={s.id}
-                            href={s.src}
-                            x={s.x - 35}
-                            y={s.y - 35}
-                            width="70"
-                            height="70"
+                            src={s.src}
+                            x={s.x}
+                            y={s.y}
                           />
                         );
                       }

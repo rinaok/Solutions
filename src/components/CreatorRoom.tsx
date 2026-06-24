@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Eraser, Pencil, Save, CheckCircle, Loader2, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { handleFirestoreError, OperationType } from '../errorHandlers';
 import { CHARACTERS, DEFAULT_PROMPTS, PROMPT_IMAGES } from '../constants';
+import { playClick, playDrawingScribble, playPencilSelect, playEraserSelect } from '../utils/sounds';
 
 const STICKERS = [
   '🚀', '💡', '🛠️', '🧬', '⚡', '🌈', '🧠', '🤖', '🌍', '🔥', '💎', '🎨'
@@ -14,12 +15,26 @@ const STICKERS = [
 
 function StickerImage({ src, x, y, isDone, onDragEnd }: any) {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
+  const [dimensions, setDimensions] = useState({ width: 70, height: 70 });
 
   useEffect(() => {
     const img = new window.Image();
     img.src = src;
     img.onload = () => {
       setImage(img);
+      const maxSide = 70;
+      let w = img.width;
+      let h = img.height;
+      if (w > 0 && h > 0) {
+        if (w > h) {
+          h = (h / w) * maxSide;
+          w = maxSide;
+        } else {
+          w = (w / h) * maxSide;
+          h = maxSide;
+        }
+      }
+      setDimensions({ width: w, height: h });
     };
   }, [src]);
 
@@ -30,10 +45,10 @@ function StickerImage({ src, x, y, isDone, onDragEnd }: any) {
       image={image}
       x={x}
       y={y}
-      width={70}
-      height={70}
-      offsetX={35}
-      offsetY={35}
+      width={dimensions.width}
+      height={dimensions.height}
+      offsetX={dimensions.width / 2}
+      offsetY={dimensions.height / 2}
       draggable={!isDone}
       onDragEnd={onDragEnd}
       onMouseEnter={(e) => {
@@ -56,7 +71,8 @@ function ToolButton({
   alt, 
   isActive, 
   onClick, 
-  className 
+  className,
+  style
 }: { 
   type: 'pencil' | 'eraser'; 
   color?: string; 
@@ -66,12 +82,14 @@ function ToolButton({
   isActive: boolean; 
   onClick: () => void; 
   className: string; 
+  style?: React.CSSProperties;
 }) {
   const [hasError, setHasError] = useState(false);
 
   return (
     <button
       onClick={onClick}
+      style={style}
       className={`${className} transition-all duration-300 focus:outline-none cursor-pointer ${
         isActive 
           ? 'scale-110 drop-shadow-[0_12px_24px_rgba(0,0,0,0.35)] brightness-110 z-10' 
@@ -147,6 +165,7 @@ export function CreatorRoom() {
     const x = pos.x / scaleX;
     const y = pos.y / scaleY;
     setLines([...lines, { tool, points: [x, y], color: tool === 'eraser' ? '#FFFBFB' : color }]);
+    playDrawingScribble();
   };
 
   const handleMouseMove = (e: any) => {
@@ -166,6 +185,7 @@ export function CreatorRoom() {
     const newLines = lines.slice(0, -1);
     newLines.push(lastLine);
     setLines(newLines);
+    playDrawingScribble();
   };
 
   const handleMouseUp = () => {
@@ -244,21 +264,6 @@ export function CreatorRoom() {
     const promptIndex = DEFAULT_PROMPTS.indexOf(promptText);
     const promptImage = promptIndex !== -1 ? PROMPT_IMAGES[promptIndex] : PROMPT_IMAGES[0];
 
-    // Split the prompt dynamically: first half is smaller/subtle, second half is massive and bold
-    const splitPrompt = (text: string) => {
-      const words = text.split(' ');
-      if (words.length <= 2) {
-        return { part1: words[0] || '', part2: words.slice(1).join(' ') };
-      }
-      const mid = Math.max(1, Math.floor(words.length * 0.5));
-      return {
-        part1: words.slice(0, mid).join(' '),
-        part2: words.slice(mid).join(' ')
-      };
-    };
-
-    const { part1, part2 } = splitPrompt(promptText);
-
     return (
       <div 
         onClick={() => setIsPrep(false)}
@@ -276,19 +281,17 @@ export function CreatorRoom() {
                 src={promptImage} 
                 className="w-full h-full object-cover"
                 alt="Selected problem illustration"
+                style={{ marginLeft: '0px', marginRight: '50px' }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
             </div>
           </div>
 
           {/* Prompt text below the card */}
-          <div className="text-center max-w-[280px] space-y-1">
-            <p className="text-[#433D34]/70 text-lg font-bold font-sans">
-              {part1}
-            </p>
-            <p className="text-[#433D34] text-[32px] md:text-[36px] font-black leading-tight tracking-tight lowercase">
-              {part2}!
-            </p>
+          <div className="text-center max-w-[280px]">
+            <h3 className="text-[26px] md:text-[30px] font-black leading-tight tracking-tight text-[#433C34]">
+              {promptText}
+            </h3>
           </div>
         </motion.div>
 
@@ -416,16 +419,16 @@ export function CreatorRoom() {
             {!isPaperOpen && (
               <motion.div
                 key="paper-corner"
-                initial={{ opacity: 0, x: -30, rotate: -8 }}
-                animate={{ opacity: 1, x: 0, rotate: -2 }}
-                exit={{ opacity: 0, x: -40, rotate: -15 }}
+                initial={{ opacity: 0, x: -30, rotate: 0 }}
+                animate={{ opacity: 1, x: 0, rotate: 0 }}
+                exit={{ opacity: 0, x: -40, rotate: 0 }}
                 transition={{ type: 'spring', stiffness: 220, damping: 20 }}
                 onClick={() => setIsPaperOpen(true)}
-                className="absolute left-[-55px] top-[100px] w-20 h-44 cursor-pointer z-20 hover:scale-105 active:scale-95 transition-all flex items-center justify-start"
+                className="fixed left-0 top-[28%] w-28 h-60 cursor-pointer z-20 hover:scale-105 active:scale-95 transition-all flex items-center justify-start"
               >
                 <img 
                   src="/drawing/paper_corner.png" 
-                  className="w-full h-full object-contain drop-shadow-[2px_6px_12px_rgba(0,0,0,0.15)]" 
+                  className="w-full h-full object-contain drop-shadow-[2px_6px_12px_rgba(0,0,0,0.15)] mr-[55px]" 
                   alt="Paper sticker drawer corner" 
                 />
               </motion.div>
@@ -463,9 +466,10 @@ export function CreatorRoom() {
                       return (
                         <motion.button
                           key={num}
-                          whileHover={{ scale: 1.1, rotate: 3 }}
+                          whileHover={{ scale: 1.15, rotate: 4 }}
                           whileTap={{ scale: 0.9 }}
                           onClick={() => {
+                            playClick();
                             setStickers([
                               ...stickers,
                               {
@@ -477,10 +481,9 @@ export function CreatorRoom() {
                             ]);
                             setIsPaperOpen(false);
                           }}
-                          className="w-20 h-20 p-3 rounded-2xl bg-white/60 border border-[#433D34]/10 shadow-md hover:shadow-lg flex items-center justify-center cursor-pointer relative group overflow-hidden"
+                          className="w-20 h-20 p-2 flex items-center justify-center cursor-pointer relative focus:outline-none"
                         >
-                          <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                          <img src={stickerSrc} className="w-full h-full object-contain relative z-10" alt={`Sticker ${num}`} />
+                          <img src={stickerSrc} className="w-full h-full object-contain filter drop-shadow-[2px_4px_6px_rgba(0,0,0,0.15)] hover:drop-shadow-[3px_6px_8px_rgba(0,0,0,0.25)] transition-all" alt={`Sticker ${num}`} />
                         </motion.button>
                       );
                     })}
@@ -590,10 +593,11 @@ export function CreatorRoom() {
             alt="Pencil tool"
             isActive={tool === 'pencil' && color === '#433D34'}
             onClick={() => {
+              playPencilSelect();
               setTool('pencil');
               setColor('#433D34');
             }}
-            className="absolute left-[-8px] bottom-4 w-28 h-10 transform -rotate-12"
+            className="absolute left-[-10px] bottom-3 w-28 h-10 transform -rotate-12"
           />
 
           {/* Green Pencil */}
@@ -605,10 +609,12 @@ export function CreatorRoom() {
             alt="Green pencil tool"
             isActive={tool === 'pencil' && color === '#4CAF50'}
             onClick={() => {
+              playPencilSelect();
               setTool('pencil');
               setColor('#4CAF50');
             }}
-            className="absolute left-[80px] bottom-5 w-28 h-10 transform -rotate-4"
+            className="absolute left-[90px] bottom-3 w-28 h-10 transform rotate-4 z-10"
+            style={{ marginLeft: '50px' }}
           />
 
           {/* Red Pencil */}
@@ -620,10 +626,12 @@ export function CreatorRoom() {
             alt="Red pencil tool"
             isActive={tool === 'pencil' && color === '#ED5F69'}
             onClick={() => {
+              playPencilSelect();
               setTool('pencil');
               setColor('#ED5F69');
             }}
-            className="absolute left-[168px] bottom-3 w-28 h-10 transform rotate-6"
+            className="absolute left-[110px] bottom-6 w-28 h-10 transform rotate-12 z-20"
+            style={{ marginRight: '0px', paddingLeft: '0px' }}
           />
 
           {/* Eraser */}
@@ -633,6 +641,7 @@ export function CreatorRoom() {
             alt="Eraser tool"
             isActive={tool === 'eraser'}
             onClick={() => {
+              playEraserSelect();
               setTool('eraser');
             }}
             className="absolute right-[-8px] bottom-1 w-16 h-12 transform rotate-12"
@@ -643,7 +652,10 @@ export function CreatorRoom() {
         {!isDone && (
           <div className="pb-4 w-full flex justify-center mt-auto z-10">
             <button
-              onClick={() => handleSave()}
+              onClick={() => {
+                playClick();
+                handleSave();
+              }}
               disabled={isSaving || lines.length === 0 || !name.trim()}
               className="bg-[#ED5F69] text-white py-3 px-12 text-xl font-black uppercase rounded-[4px] shadow-lg hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
             >

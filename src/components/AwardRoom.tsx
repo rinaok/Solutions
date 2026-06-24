@@ -6,6 +6,7 @@ import { motion } from 'motion/react';
 import { Trophy, Gift, Star, Award, Heart, Zap, Sparkles } from 'lucide-react';
 import { handleFirestoreError, OperationType } from '../errorHandlers';
 import { CHARACTERS, AWARDS } from '../constants';
+import { playClick } from '../utils/sounds';
 
 function AwardImage({ src, fallback, className }: { src: string; fallback: React.ReactNode; className?: string }) {
   const [hasError, setHasError] = useState(false);
@@ -49,6 +50,7 @@ export function AwardRoom() {
 
   const handleVote = async (solutionId: string) => {
     if (!user || !room) return;
+    playClick();
     const voteIndex = localPrizeIndex;
     setLocalPrizeIndex(prev => prev + 1);
     try {
@@ -66,6 +68,7 @@ export function AwardRoom() {
 
   const handleRevealResults = async () => {
     if (!room || !isHost) return;
+    playClick();
     try {
       // 1. Tally votes for ALL prizes
       const solutionPrizeUpdates: { [solId: string]: any[] } = {};
