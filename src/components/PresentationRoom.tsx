@@ -75,16 +75,16 @@ export function PresentationRoom() {
       {/* Progress Bar & Character & Name Info */}
       <div className="w-full flex flex-col">
         {/* Progress Bar Header */}
-        <div className="w-full max-w-md mx-auto h-[18px] bg-white rounded-full p-[3px] border border-black/10 overflow-hidden shadow-inner mt-2">
-          <motion.div 
-            className="h-full rounded-full"
-            initial={{ width: '100%' }}
-            animate={{ width: `${(timeLeft / 120) * 100}%` }}
-            transition={{ ease: 'linear' }}
-            style={{ 
-              backgroundColor: brandColor 
-            }}
-          />
+        <div className="w-full h-8 bg-white p-2">
+          <div className="h-full rounded-full overflow-hidden" style={{ backgroundColor: `${brandColor}33` }}>
+            <motion.div 
+              className="h-full rounded-full"
+              initial={{ width: '100%' }}
+              animate={{ width: `${(timeLeft / 120) * 100}%` }}
+              transition={{ ease: 'linear' }}
+              style={{ backgroundColor: brandColor }}
+            />
+          </div>
         </div>
 
         {/* Avatar Section - Character outside the circle and name right under it */}
@@ -111,7 +111,7 @@ export function PresentationRoom() {
           </div>
 
           {/* SVG Drawing Covering entire Notebook Width & Height */}
-          <svg viewBox="0 0 340 450" className="w-full h-full absolute inset-0 z-0 pointer-events-none">
+          <svg viewBox="0 0 340 450" preserveAspectRatio="none" className="w-full h-full absolute inset-0 z-0 pointer-events-none">
             {canvasData.lines.map((line: any, i: number) => (
               <polyline
                 key={i}
