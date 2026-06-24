@@ -71,46 +71,47 @@ export function PresentationRoom() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-transparent overflow-hidden relative pt-12 p-8">
-      {/* Progress Bar Header */}
-      <div className="absolute top-0 left-0 right-0 h-5 bg-white overflow-hidden z-20">
-        <motion.div 
-          className="h-full"
-          initial={{ width: '100%' }}
-          animate={{ width: `${(timeLeft / 120) * 100}%` }}
-          transition={{ ease: 'linear' }}
-          style={{ 
-            backgroundColor: brandColor 
-          }}
-        />
-      </div>
+    <div className="min-h-screen flex flex-col justify-between bg-transparent overflow-hidden relative py-4 px-6">
+      {/* Progress Bar & Character & Name Info */}
+      <div className="w-full flex flex-col">
+        {/* Progress Bar Header */}
+        <div className="w-full max-w-md mx-auto h-[18px] bg-white rounded-full p-[3px] border border-black/10 overflow-hidden shadow-inner mt-2">
+          <motion.div 
+            className="h-full rounded-full"
+            initial={{ width: '100%' }}
+            animate={{ width: `${(timeLeft / 120) * 100}%` }}
+            transition={{ ease: 'linear' }}
+            style={{ 
+              backgroundColor: brandColor 
+            }}
+          />
+        </div>
 
-      {/* Avatar Section - Character outside the circle */}
-      <div className="absolute top-8 left-6 z-10 flex flex-col items-center">
-        <img src={character?.src} className="w-20 h-20 object-contain drop-shadow-lg" />
-      </div>
-
-      <div className="flex-1 flex flex-col items-center justify-center gap-3 max-w-xl mx-auto w-full pt-20">
-        {/* Presenter Text */}
-        <div className="text-center">
-          <p className="text-[#433D34]/70 font-black uppercase text-xs tracking-tight mb-1">
+        {/* Avatar Section - Character outside the circle and name right under it */}
+        <div className="w-full max-w-md mx-auto flex flex-col items-start gap-1 mt-4 px-2">
+          <img src={character?.src} className="w-[84px] h-[84px] object-contain drop-shadow-md animate-bounce" style={{ animationDuration: '3s' }} />
+          <p className="text-[#433D34] font-black uppercase text-xs tracking-tight text-center leading-none">
             {presenter?.name}'s Solution
           </p>
         </div>
+      </div>
 
-        {/* Title Card */}
-        <div className="bg-white py-2 px-8 rounded-sm shadow-xl mb-2">
-          <h2 className="text-2xl font-black uppercase tracking-tight" style={{ color: brandColor }}>
-            {solution?.name || 'Untitled'}
-          </h2>
-        </div>
-
+      {/* Main Drawing Area */}
+      <div className="flex-1 flex items-center justify-center py-2 w-full">
         {/* Drawing Card */}
         <div 
-          className="w-full max-w-[440px] aspect-[3/4] max-h-[58vh] rounded-lg shadow-2xl overflow-hidden relative p-0 border-2 border-white bg-cover bg-center"
+          className="w-full max-w-[350px] aspect-[3/4] max-h-[58vh] rounded-[12px] shadow-2xl overflow-hidden relative border-2 border-white bg-cover bg-center"
           style={{ backgroundImage: "url('/backgrounds/notebook.png')" }}
         >
-          <svg viewBox="0 0 340 450" className="w-full h-full">
+          {/* Title Card Inside the Notebook */}
+          <div className="absolute top-5 left-1/2 -translate-x-[54%] w-[68%] bg-white py-2 px-4 rounded-[4px] shadow-md z-10 text-center border border-black/5">
+            <h2 className="text-lg font-black uppercase tracking-tight leading-none truncate" style={{ color: brandColor }}>
+              {solution?.name || 'Untitled'}
+            </h2>
+          </div>
+
+          {/* SVG Drawing Covering entire Notebook Width & Height */}
+          <svg viewBox="0 0 340 450" className="w-full h-full absolute inset-0 z-0 pointer-events-none">
             {canvasData.lines.map((line: any, i: number) => (
               <polyline
                 key={i}
@@ -140,17 +141,19 @@ export function PresentationRoom() {
       </div>
 
       {/* Host Controls */}
-      {isHost && (
-        <div className="mt-auto w-full max-w-md mx-auto pb-8 flex justify-center z-10">
+      <div className="w-full flex justify-center pb-2">
+        {isHost ? (
           <button
             onClick={nextPresenter}
-            style={{ backgroundColor: brandColor }}
-            className="text-white p-[10px] text-2xl font-black uppercase rounded-[4px] shadow-xl hover:brightness-105 active:scale-95 transition-all"
+            className="bg-[#433D34] text-white py-3 px-14 text-xl font-black uppercase rounded-[4px] shadow-xl hover:brightness-110 active:scale-95 transition-all min-w-[180px] text-center"
           >
-            {players.findIndex(p => p.id === currentPresenterId) === players.length - 1 ? 'Finish' : 'Next'}
+            {players.findIndex(p => p.id === currentPresenterId) === players.length - 1 ? 'Finish' : 'Skip'}
           </button>
-        </div>
-      )}
+        ) : (
+          /* Invisible placeholder of the same size to keep layout aligned */
+          <div className="h-12 w-full max-w-[180px]" />
+        )}
+      </div>
     </div>
   );
 }
