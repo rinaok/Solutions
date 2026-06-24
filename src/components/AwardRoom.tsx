@@ -122,16 +122,16 @@ export function AwardRoom() {
           {prizes.map((_, idx) => (
             <div 
               key={idx} 
-              className={`h-[6px] rounded-full transition-all duration-300 ${idx === currentPrizeIndex ? 'w-6 bg-[#ED5F69]' : 'w-[6px] bg-white/20'}`} 
+              className={`h-[6px] rounded-full transition-all duration-300 ${idx === currentPrizeIndex ? 'w-6 bg-[#ED5F69]' : 'w-[6px] bg-[#433D34]/20'}`} 
             />
           ))}
         </div>
 
         <div className="text-center">
-          <span className="text-white/60 font-black uppercase text-xs tracking-widest block mb-1">
+          <span className="text-[#433D34]/60 font-black uppercase text-xs tracking-widest block mb-1">
             Round {currentPrizeIndex + 1} of {prizes.length}
           </span>
-          <h2 className="text-white text-lg font-black uppercase tracking-tight">
+          <h2 className="text-[#433D34] text-lg font-black uppercase tracking-tight">
             {currentPrize.name}
           </h2>
         </div>
@@ -142,20 +142,17 @@ export function AwardRoom() {
             fallback={<Trophy className="w-24 h-24 text-[#ED5F69]" />}
             className="w-36 h-36 object-contain"
           />
-          <div className="absolute top-2 right-2 bg-[#ED5F69] rounded-full p-1 border-2 border-white">
-            <Star className="w-4 h-4 text-white fill-current" />
-          </div>
         </div>
         
         <div className="text-center space-y-1">
-          <h3 className="text-white text-2xl font-black uppercase tracking-tight">Vote Submitted!</h3>
-          <p className="text-white/60 font-black uppercase text-xs tracking-wider">
+          <h3 className="text-[#433D34] text-2xl font-black uppercase tracking-tight">Vote Submitted!</h3>
+          <p className="text-[#433D34]/60 font-black uppercase text-xs tracking-wider">
             {everyoneVoted ? 'Everyone has voted!' : 'Waiting for other players to vote...'}
           </p>
         </div>
 
         {/* Real-time players list with checkmarks for voting */}
-        <div className="flex justify-center gap-3 flex-wrap max-w-sm bg-black/10 p-4 rounded-lg border border-white/10">
+        <div className="flex justify-center gap-3 flex-wrap max-w-sm bg-[#433D34]/5 p-4 rounded-lg border border-[#433D34]/10">
           {players.map(p => {
             const hasPlayedVoted = p.votes?.[currentPrizeIndex] !== undefined;
             return (
@@ -176,7 +173,7 @@ export function AwardRoom() {
         {isHost && (
           <button
             onClick={handleNextAward}
-            className="w-full max-w-xs bg-white text-[#433D34] p-[12px] text-xl font-black uppercase rounded-[4px] shadow-2xl hover:bg-white/90 active:scale-95 transition-all mt-4"
+            className="w-full max-w-xs bg-[#433D34] text-white p-[12px] text-xl font-black uppercase rounded-[4px] shadow-2xl hover:brightness-110 active:scale-95 transition-all mt-4"
           >
             {currentPrizeIndex + 1 === prizes.length ? 'Show Results!' : 'Next Award'}
           </button>
@@ -185,83 +182,52 @@ export function AwardRoom() {
     );
   }
 
+  const awardKeyword = currentPrize.name.replace(/^The\s+Most\s+/i, '').replace(/^The\s+Ultimate\s+/i, '');
+
   // Voting Choices Screen
   return (
-    <div className="h-full flex flex-col bg-transparent min-h-screen overflow-x-hidden">
-      <div className="flex-1 flex flex-col items-center p-8 space-y-6 overflow-y-auto">
-        {/* Progress header dots */}
-        <div className="flex gap-[6px] justify-center items-center mt-2">
-          {prizes.map((_, idx) => (
-            <div 
-              key={idx} 
-              className={`h-[6px] rounded-full transition-all duration-300 ${idx === currentPrizeIndex ? 'w-6 bg-[#ED5F69]' : 'w-[6px] bg-white/20'}`} 
-            />
-          ))}
-        </div>
-
-        <div className="text-center">
-          <span className="text-white/60 font-black uppercase text-xs tracking-widest block mb-1">
-            Round {currentPrizeIndex + 1} of {prizes.length}
-          </span>
-          <h1 className="text-white text-2xl font-black uppercase tracking-tight">
-            Awarding Phase
-          </h1>
-        </div>
-
+    <div className="h-full flex flex-col bg-transparent min-h-screen overflow-x-hidden relative py-4 px-6 justify-between">
+      <div className="flex-1 flex flex-col items-center space-y-4 overflow-y-auto pb-4">
         {/* Large Award Image display */}
-        <div className="relative">
-          <div className="w-48 h-48 bg-white rounded-full flex items-center justify-center shadow-2xl relative z-0 overflow-hidden p-4">
+        <div className="relative mt-4">
+          <div className="w-[180px] h-[180px] bg-white rounded-full flex items-center justify-center shadow-lg relative z-0 overflow-hidden p-6">
              <AwardImage 
                src={currentPrize.src}
-               fallback={<Trophy className="w-24 h-24 text-amber-400" />}
-               className="w-36 h-36 object-contain"
+               fallback={<Trophy className="w-24 h-24 text-amber-500" />}
+               className="w-28 h-28 object-contain"
              />
-             <div className="absolute top-0 right-0 translate-x-2 -translate-y-2">
-                <div className="w-12 h-12 bg-white rounded-full p-2 shadow-lg flex items-center justify-center transform rotate-12">
-                   <Zap className="w-6 h-6 text-yellow-500 fill-current" />
-                </div>
-             </div>
           </div>
         </div>
 
         {/* Award Title and Subtitle */}
-        <div className="text-center space-y-2">
-          <h2 className="text-[#ED5F69] text-3xl font-black uppercase leading-tight max-w-[280px] mx-auto">
+        <div className="text-center">
+          <h2 className="text-[#433D34] text-xl font-black uppercase tracking-tight leading-none mb-1">
             {currentPrize.name}
           </h2>
-          <p className="text-white/70 text-sm font-black uppercase tracking-wide">
-            Pick who to give this reward!
+          <h2 className="text-[#433D34] text-xl font-black uppercase tracking-tight leading-none mb-4">
+            reward
+          </h2>
+          <p className="text-[#433D34] text-[13px] font-black tracking-tight">
+            Pick who to give the {awardKeyword} reward
           </p>
         </div>
 
         {/* Solution Buttons */}
-        <div className="w-full max-w-sm space-y-3 pb-8">
+        <div className="w-full max-w-[280px] space-y-3 pb-8">
           {solutions.filter(s => s.playerId !== user?.uid).map(s => {
-            const solutionPlayer = players.find(p => p.id === s.playerId);
              return (
               <button
                 key={s.id}
                 onClick={() => handleVote(s.id)}
-                className="w-full bg-white p-[12px] rounded-[4px] shadow-xl text-lg font-black uppercase text-[#433D34] hover:bg-white/95 active:scale-[0.98] transition-all text-left flex items-center justify-between gap-3 border-2 border-transparent hover:border-[#ED5F69]"
+                className="w-full bg-white py-3 px-6 rounded-[4px] shadow-md text-base font-black text-[#433D34] hover:bg-white/95 active:scale-[0.98] transition-all text-center border border-black/5"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#AE8166]/10 flex items-center justify-center overflow-hidden">
-                    <img src={CHARACTERS.find(c => c.id === solutionPlayer?.avatar)?.src} className="w-7 h-7 object-contain" />
-                  </div>
-                  <div className="truncate">
-                    <div className="font-extrabold truncate text-base leading-tight text-[#433D34]">{s.name}</div>
-                    <div className="text-xs text-black/40 font-bold lowercase">by {solutionPlayer?.name || 'player'}</div>
-                  </div>
-                </div>
-                <div className="w-8 h-8 rounded-full border border-black/10 flex items-center justify-center bg-black/5 text-xs text-[#ED5F69] font-black">
-                  +1
-                </div>
+                {s.name}
               </button>
             );
           })}
           
           {solutions.filter(s => s.playerId !== user?.uid).length === 0 && (
-            <div className="text-center py-8 text-white/50 font-black uppercase text-sm">
+            <div className="text-center py-8 text-[#433D34]/50 font-black uppercase text-sm">
               No solutions to vote on!
             </div>
           )}
