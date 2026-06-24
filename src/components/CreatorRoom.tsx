@@ -128,6 +128,9 @@ function ToolButton({
 
 export function CreatorRoom() {
   const { room, players, user } = useGame();
+  const currentPlayer = players.find(p => p.id === user?.uid);
+  const character = CHARACTERS.find(c => c.id === currentPlayer?.avatar);
+  const brandColor = character?.color.replace('bg-[', '').replace(']', '') || '#EA8B49';
   const [tool, setTool] = useState<'pencil' | 'eraser'>('pencil');
   const [color, setColor] = useState('#433D34');
   const [lines, setLines] = useState<any[]>([]);
@@ -316,9 +319,10 @@ export function CreatorRoom() {
       <div className="h-full flex flex-col bg-transparent overflow-hidden">
         {/* Progress Bar Header */}
         <div className="w-full h-8 bg-white p-2">
-          <div className="h-full bg-[#ED5F69]/20 rounded-full overflow-hidden">
+          <div className="h-full rounded-full overflow-hidden" style={{ backgroundColor: `${brandColor}33` }}>
             <motion.div 
-              className="h-full bg-[#ED5F69]" 
+              className="h-full" 
+              style={{ backgroundColor: brandColor }}
               initial={{ width: '100%' }}
               animate={{ width: `${(timeLeft / 120) * 100}%` }}
               transition={{ ease: 'linear' }}
@@ -386,7 +390,8 @@ export function CreatorRoom() {
       <div className="w-full flex flex-col items-center pt-4 px-4 gap-1">
         <div className="w-[80%] max-w-[280px] h-4 bg-white rounded-full overflow-hidden shadow-inner">
           <motion.div 
-            className="h-full bg-[#ED5F69]" 
+            className="h-full" 
+            style={{ backgroundColor: brandColor }}
             initial={{ width: '100%' }}
             animate={{ width: `${(timeLeft / 120) * 100}%` }}
             transition={{ ease: 'linear' }}
